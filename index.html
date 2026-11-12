@@ -194,6 +194,7 @@ const COLUMNAS = {
     ["apm", "Años-persona media", "Valor de la producción entre la productividad media de la economía"],
     ["apr", "Años-persona rama", "Valor de la producción entre la productividad de su rama"],
     ["tm", "TTSN media", "Horas de trabajo para producir el salario indicado, con la productividad media"],
+    ["ti", "TTSN industria", "Horas de trabajo para producir el salario indicado, con la productividad media de toda la industria"],
     ["tr", "TTSN rama", "Horas de trabajo para producir el salario indicado, con la productividad de su rama"],
   ],
 };
@@ -296,7 +297,7 @@ function pintar() {
   const salario = Number($("salario").value) || 0, jornada = Number($("jornada").value) || 0;
   // Horas para producir el salario: (salario / productividad anual) años × jornada anual.
   const ttsn = (productiv) => (productiv && salario && jornada ? (salario / productiv) * jornada : null);
-  const tm = ttsn(prod.media);
+  const tm = ttsn(prod.media), ti = ttsn(prod.ramas.IND);
 
   vista = [];
   for (const p of datos.productos) {
@@ -309,7 +310,7 @@ function pintar() {
       p, q, v, dq: variacion(p, "q", i), dv: variacion(p, "v", i),
       apm: v != null && prod.media ? (v * 1000) / prod.media : null,   // v viene en miles de euros
       apr: v != null && deRama ? (v * 1000) / deRama : null,
-      tm, tr: ttsn(deRama),
+      tm, ti, tr: ttsn(deRama),
     });
   }
   if (!COLUMNAS[modo].some(([c]) => c === orden.campo) && orden.campo !== "n") orden = { campo: "v", desc: true };
@@ -340,7 +341,7 @@ function pintar() {
       tarjeta(`Productividad media ${anyo} (PIB por asalariado)`, porAsalariado(prod.media)) +
       Object.entries(datos.macro?.ramas ?? {}).map(([clave, r]) =>
         tarjeta(`Productividad · ${esc(r.n)}`, porAsalariado(prod.ramas[clave]))).join("") +
-      tarjeta("TTSN con la productividad media", horas(tm)) +
+      tarjeta("TTSN media · industria", `${horas(tm)} · ${horas(ti)}`) +
       tarjeta(`Años-persona (media) de los ${fmtNum.format(conValor)} productos`, aniosPersona(sumaApm));
   } else {
     $("tarjetas").innerHTML =
@@ -388,7 +389,7 @@ function filaHtml(f) {
     (modo === "trabajo"
       ? `<td class="n">${euros(f.v)}</td>
          <td class="n">${aniosPersona(f.apm)}</td><td class="n">${aniosPersona(f.apr)}</td>
-         <td class="n">${horas(f.tm)}</td><td class="n">${horas(f.tr)}</td>`
+         <td class="n">${horas(f.tm)}</td><td class="n">${horas(f.ti)}</td><td class="n">${horas(f.tr)}</td>`
       : `<td class="n">${pct(f.dq)}</td>
          <td class="n">${euros(f.v)}</td>
          <td class="n">${pct(f.dv)}</td>`) +
@@ -458,14 +459,14 @@ function descargarCsv() {
   const dec = (x) => (x == null ? "" : x.toFixed(1).replace(".", ","));
   const trabajo = modo === "trabajo";
   const propias = trabajo
-    ? ["anios_persona_media", "anios_persona_rama", "ttsn_media_horas", "ttsn_rama_horas"]
+    ? ["anios_persona_media", "anios_persona_rama", "ttsn_media_horas", "ttsn_industria_horas", "ttsn_rama_horas"]
     : ["var_cantidad_pct", "var_valor_pct"];
   const lineas = [["anyo", "prodcom", "producto", "denominacion_ine", "sector", "unidad", "cantidad",
                    "valor_euros", ...propias].join(";")];
   for (const f of vista) {
     lineas.push([anyo, f.p.c, celda(f.p.n), celda(f.p.o.join(" > ")), celda(datos.sectores[f.p.s]?.n),
       celda(f.p.u), f.q ?? "", f.v == null ? "" : f.v * 1000,
-      ...(trabajo ? [dec(f.apm), dec(f.apr), dec(f.tm), dec(f.tr)] : [dec(f.dq), dec(f.dv)])].join(";"));
+      ...(trabajo ? [dec(f.apm), dec(f.apr), dec(f.tm), dec(f.ti), dec(f.tr)] : [dec(f.dq), dec(f.dv)])].join(";"));
   }
   const enlace = document.createElement("a");
   enlace.href = URL.createObjectURL(new Blob(["﻿" + lineas.join("\r\n")], { type: "text/csv;charset=utf-8" }));

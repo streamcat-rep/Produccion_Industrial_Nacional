@@ -31,6 +31,7 @@ VAB_INDUSTRIA = "B1b_I09"  # secciones B a E
 VAB_MANUFACTURERA = "B1b_S09_C"  # sección C
 
 RAMAS = {
+    "IND": "Toda la industria",
     "C": "Industria manufacturera",
     "BDE": "Industrias extractivas, energía y agua",
 }
@@ -118,6 +119,14 @@ def descargar() -> dict:
         "pib": [pib[PIB_TOTAL][a] for a in anyos],
         "asalariados": [asal["TOTAL"][a] for a in anyos],
         "ramas": {
+            # Toda la industria (B-E): no es la rama de ningún sector, sirve de referencia.
+            "IND": {
+                "n": RAMAS["IND"],
+                "vab": [pib[VAB_INDUSTRIA][a] for a in anyos],
+                "asalariados": [
+                    round(asal["B"][a] + asal["C"][a] + asal["D"][a] + asal["E"][a], 1) for a in anyos
+                ],
+            },
             "C": {
                 "n": RAMAS["C"],
                 "vab": [pib[VAB_MANUFACTURERA][a] for a in anyos],

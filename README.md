@@ -84,7 +84,7 @@ Segunda pestaña de la web. Añade a cada producto cuánto trabajo representa:
 | Productividad media | PIB anual ÷ total de asalariados (€ por asalariado y año) |
 | Productividad de la rama | Valor añadido de la rama ÷ asalariados de la rama |
 | Años-persona media / rama | Valor de la producción del producto ÷ productividad |
-| TTSN media / rama | (Salario ÷ productividad) × jornada anual, en horas |
+| TTSN media / industria / rama | (Salario ÷ productividad) × jornada anual, en horas |
 
 - El PIB es trimestral ([tabla 67821](https://ine.es/jaxiT3/Tabla.htm?t=67821&L=0)) y se
   anualiza sumando los cuatro trimestres; un año incompleto no se usa. Los
@@ -92,6 +92,8 @@ Segunda pestaña de la web. Añade a cada producto cuánto trabajo representa:
 - La tabla del PIB solo desglosa la industria en dos ramas: **manufacturera**
   (todos los sectores salvo el 79) y **extractivas, energía y agua** (sector 79,
   electricidad y gas), que se obtiene restando la manufacturera al total de industria.
+- El **TTSN industria** usa la productividad de toda la industria: valor añadido de
+  las secciones B a E entre sus asalariados.
 - El salario (2.500 € por defecto) y la jornada anual (1.826 h, el máximo legal
   de 40 h semanales) se pueden cambiar en la propia web.
 - El TTSN depende solo de la productividad, así que es el mismo para todos los
