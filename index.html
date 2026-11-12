@@ -106,25 +106,15 @@
 
   <dialog id="dlg">
     <h2>⚡ Actualizar desde el INE</h2>
-    <p>Esta web es estática: la descarga del INE la hace un trabajo de GitHub Actions
-       (unos 15 minutos) que guarda los datos nuevos en el repositorio.</p>
-    <div id="dlgLocal" hidden>
-      <p><strong>Ahora mismo no estás en GitHub Pages.</strong> En local, actualiza con:</p>
-      <pre>python scripts/actualizar.py</pre>
-    </div>
-    <div id="dlgPages">
-      <p><strong>Opción 1 · sin configurar nada:</strong>
-         <a id="dlgEnlace" target="_blank" rel="noopener">abrir el trabajo en GitHub</a> y pulsar «Run workflow».</p>
-      <p><strong>Opción 2 · lanzarlo desde este botón:</strong> pega un token de GitHub
-         (<em>fine-grained</em>, solo para este repositorio, con permiso <em>Actions: Read and write</em>).
-         Se guarda únicamente en este navegador.</p>
-      <label>Token <input id="dlgToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
-    </div>
+    <p>Lanza en GitHub la descarga de los datos del INE. Tarda unos 15 minutos y, al
+       terminar, la web se recarga sola. Para no saturar, solo se permite una
+       actualización cada hora.</p>
     <p class="estado" id="dlgEstado" role="status"></p>
+    <p class="meta">El INE publica esta encuesta una vez al año, así que lo normal es que no haya cambios.
+       <a id="dlgEnlace" target="_blank" rel="noopener" hidden>Ver el trabajo en GitHub</a></p>
     <div class="dlg-botones">
-      <button id="dlgOlvidar" type="button" hidden>Olvidar token</button>
       <button id="dlgCerrar" type="button">Cerrar</button>
-      <button id="dlgLanzar" type="button" class="principal">Lanzar actualización</button>
+      <button id="dlgLanzar" type="button" class="principal" disabled>Lanzar actualización</button>
     </div>
   </dialog>
 
@@ -380,102 +370,101 @@ function descargarCsv() {
   URL.revokeObjectURL(enlace.href);
 }
 
-// --- Actualización desde el INE mediante GitHub Actions ----------------------
-const WORKFLOW = "actualizar.yml";
-const CLAVE_TOKEN = "anprod.github.token";
+// --- Actualización desde el INE ---------------------------------------------
+// La web es estática y no puede guardar credenciales: el botón llama a un
+// intermediario (Cloudflare Worker, carpeta worker/) que lanza el trabajo de GitHub.
+const URL_ACTUALIZADOR = "https://produccion-industrial-actualizar.streamcat-rep.workers.dev";
 const pausa = (ms) => new Promise((r) => setTimeout(r, ms));
+let siguiendo = false;
 
-/** En usuario.github.io/repositorio deduce de la URL a qué repositorio pertenece la web. */
-function repositorio() {
-  const m = location.hostname.match(/^([^.]+)\.github\.io$/);
-  if (!m) return null;
-  const carpeta = location.pathname.split("/").filter(Boolean)[0];
-  return { dueno: m[1], nombre: carpeta && !carpeta.includes(".") ? carpeta : location.hostname };
+async function actualizador(ruta, opciones) {
+  const resp = await fetch(URL_ACTUALIZADOR + ruta, { cache: "no-store", ...opciones });
+  const cuerpo = await resp.json();
+  if (cuerpo.error) throw new Error(cuerpo.error);
+  return cuerpo;
 }
 
-async function github(ruta, token, opciones = {}) {
-  const repo = repositorio();
-  const resp = await fetch(`https://api.github.com/repos/${repo.dueno}/${repo.nombre}${ruta}`, {
-    ...opciones,
-    headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${token}`,
-               "X-GitHub-Api-Version": "2022-11-28" },
-  });
-  if (resp.status === 401) throw new Error("GitHub rechaza el token (caducado o mal copiado)");
-  if (resp.status === 403 || resp.status === 404) throw new Error("el token no tiene permiso «Actions: Read and write» sobre este repositorio");
-  if (!resp.ok) throw new Error(`GitHub respondió ${resp.status}`);
-  return resp.status === 204 ? null : resp.json();
-}
-
-function abrirDialogo() {
-  const repo = repositorio();
-  $("dlgLocal").hidden = !!repo;
-  $("dlgPages").hidden = !repo;
-  $("dlgLanzar").hidden = !repo;
-  $("dlgEstado").textContent = "";
-  if (repo) {
-    $("dlgEnlace").href = `https://github.com/${repo.dueno}/${repo.nombre}/actions/workflows/${WORKFLOW}`;
-    const guardado = localStorage.getItem(CLAVE_TOKEN) || "";
-    $("dlgToken").value = guardado;
-    $("dlgOlvidar").hidden = !guardado;
+function pintarEstado(e) {
+  const estado = $("dlgEstado"), boton = $("dlgLanzar"), enlace = $("dlgEnlace");
+  enlace.hidden = !e.ultimo?.url;
+  if (e.ultimo?.url) enlace.href = e.ultimo.url;
+  boton.disabled = !e.puede_lanzar;
+  if (e.estado === "en_curso") {
+    const minutos = e.ultimo ? Math.max(0, Math.round((Date.now() - new Date(e.ultimo.inicio)) / 60000)) : 0;
+    estado.textContent = `⏳ Actualización en marcha (${minutos} min de unos 15). Puedes cerrar este aviso.`;
+  } else if (e.espera_min > 0) {
+    estado.textContent = `Se actualizó hace poco. Podrás lanzar otra dentro de ${e.espera_min} min.`;
+  } else {
+    estado.textContent = "Lista para lanzar.";
   }
+}
+
+/** Sigue el trabajo hasta que acaba y entonces recarga los datos publicados. */
+async function seguir() {
+  if (siguiendo) return;
+  siguiendo = true;
+  try {
+    let e;
+    do {
+      await pausa(20000);
+      e = await actualizador("/estado");
+      pintarEstado(e);
+    } while (e.estado === "en_curso");
+    if (e.ultimo?.resultado !== "success") {
+      $("dlgEstado").textContent = "⚠️ El trabajo no terminó bien. Míralo en GitHub.";
+      return;
+    }
+    // GitHub Pages tarda un poco en publicar el commit con los datos nuevos.
+    const anterior = datos?.meta.generado;
+    for (let i = 0; i < 12; i++) {
+      await cargar(true);
+      if (datos?.meta.generado !== anterior) { $("dlgEstado").textContent = "✅ Datos actualizados."; return; }
+      await pausa(15000);
+    }
+    $("dlgEstado").textContent = "✅ Terminado: el INE no ha publicado datos nuevos.";
+  } catch (err) {
+    $("dlgEstado").textContent = "⚠️ Se perdió el seguimiento (" + err.message + ").";
+  } finally {
+    siguiendo = false;
+  }
+}
+
+async function abrirDialogo() {
   $("dlg").showModal();
+  $("dlgLanzar").disabled = true;
+  if (!URL_ACTUALIZADOR) {
+    $("dlgEstado").textContent = "El actualizador aún no está configurado. En local: python scripts/actualizar.py";
+    return;
+  }
+  $("dlgEstado").textContent = "Consultando el estado…";
+  try {
+    const e = await actualizador("/estado");
+    pintarEstado(e);
+    if (e.estado === "en_curso") seguir();
+  } catch (err) {
+    $("dlgEstado").textContent = "⚠️ No se pudo consultar el estado (" + err.message + ").";
+  }
 }
 
 async function lanzarActualizacion() {
-  const token = $("dlgToken").value.trim();
-  const estado = (texto) => { $("dlgEstado").textContent = texto; };
-  if (!token) { estado("Pega un token o usa la opción 1."); return; }
-  const boton = $("dlgLanzar");
-  boton.disabled = true;
+  $("dlgLanzar").disabled = true;
+  $("dlgEstado").textContent = "Lanzando…";
   try {
-    estado("Conectando con GitHub…");
-    const { default_branch: rama } = await github("", token);
-    const inicio = Date.now() - 60000;  // margen por si los relojes no coinciden
-    await github(`/actions/workflows/${WORKFLOW}/dispatches`, token,
-                 { method: "POST", body: JSON.stringify({ ref: rama }) });
-    localStorage.setItem(CLAVE_TOKEN, token);
-    $("dlgOlvidar").hidden = false;
-
-    // Seguir el trabajo hasta que termine (puede cerrarse el aviso: sigue en GitHub).
-    let ejecucion = null;
-    for (let i = 0; i < 120; i++) {
-      await pausa(i < 3 ? 5000 : 20000);
-      const { workflow_runs: lista } = await github(
-        `/actions/workflows/${WORKFLOW}/runs?event=workflow_dispatch&per_page=5`, token);
-      ejecucion = lista.find((r) => new Date(r.created_at).getTime() >= inicio);
-      if (!ejecucion) { estado("Trabajo en cola…"); continue; }
-      if (ejecucion.status === "completed") break;
-      const minutos = Math.round((Date.now() - new Date(ejecucion.created_at).getTime()) / 60000);
-      estado(`Descargando del INE… ${minutos} min (suele tardar unos 15). Puedes cerrar este aviso.`);
+    const e = await actualizador("/lanzar", { method: "POST" });
+    if (e.lanzado) {
+      $("dlgEstado").textContent = "⏳ Actualización lanzada. Tarda unos 15 minutos; puedes cerrar este aviso.";
+      seguir();
+    } else {
+      pintarEstado(e);
     }
-    if (!ejecucion || ejecucion.status !== "completed") throw new Error("el trabajo tarda más de lo normal; míralo en GitHub");
-    if (ejecucion.conclusion !== "success") throw new Error(`el trabajo terminó con «${ejecucion.conclusion}»; revisa el registro en GitHub`);
-
-    // GitHub Pages tarda un poco en publicar el commit con los datos nuevos.
-    const anterior = datos?.meta.generado;
-    for (let i = 0; i < 20; i++) {
-      estado("Trabajo terminado. Esperando a que GitHub Pages publique los datos…");
-      await cargar(true);
-      if (datos?.meta.generado !== anterior) { estado("✅ Datos actualizados."); return; }
-      await pausa(15000);
-    }
-    estado("✅ Trabajo terminado sin datos nuevos: el INE no ha publicado cambios.");
   } catch (err) {
-    estado("⚠️ No se pudo actualizar: " + err.message + ".");
-  } finally {
-    boton.disabled = false;
+    $("dlgEstado").textContent = "⚠️ No se pudo lanzar (" + err.message + ").";
   }
 }
 
 $("actualizar").addEventListener("click", abrirDialogo);
 $("dlgCerrar").addEventListener("click", () => $("dlg").close());
 $("dlgLanzar").addEventListener("click", lanzarActualizacion);
-$("dlgOlvidar").addEventListener("click", () => {
-  localStorage.removeItem(CLAVE_TOKEN);
-  $("dlgToken").value = "";
-  $("dlgOlvidar").hidden = true;
-  $("dlgEstado").textContent = "Token borrado de este navegador.";
-});
 
 let espera;
 $("buscar").addEventListener("input", () => { clearTimeout(espera); espera = setTimeout(pintar, 150); });

@@ -1,0 +1,13 @@
+name = "produccion-industrial-actualizar"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+workers_dev = true
+
+[vars]
+REPO = "streamcat-rep/Produccion_Industrial_Nacional"
+WORKFLOW = "actualizar.yml"
+ORIGEN_PERMITIDO = "https://streamcat-rep.github.io"
+MINUTOS_ENTRE_LANZAMIENTOS = "60"
+
+# El token de GitHub NO va aquí. Se guarda cifrado con:
+#   npx wrangler secret put GITHUB_TOKEN

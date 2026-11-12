@@ -15,6 +15,7 @@ fabricada y valor económico— desde 2008, a partir de la
 | `scripts/ine_eip.py` | Cliente de la aplicación de consulta del INE. |
 | `scripts/nombres.py` | Nombres claros, emojis y unidades. **Edítalo para renombrar.** |
 | `.github/workflows/actualizar.yml` | Actualización automática en GitHub. |
+| `worker/` | Intermediario en Cloudflare que lanza la actualización desde la web. |
 
 ## Actualizar los datos
 
@@ -53,11 +54,10 @@ nuevos en el repositorio. Se lanza de tres formas:
 
 - **Solo**, el día 1 de cada mes.
 - **A mano** en GitHub: *Actions → Actualizar datos del INE → Run workflow*.
-- **Desde la web**, con el botón **⚡ Actualizar desde el INE**. La primera vez
-  pide un token de GitHub, que se guarda solo en ese navegador. Créalo en
-  *Settings → Developer settings → Fine-grained tokens*, limitado a este
-  repositorio y con el permiso **Actions: Read and write**. La web lanza el
-  trabajo, sigue su progreso y recarga los datos al terminar.
+- **Desde la web**, con el botón **⚡ Actualizar desde el INE**, que puede pulsar
+  cualquier visitante. La web no guarda credenciales: llama a un intermediario
+  (Cloudflare Worker, carpeta `worker/`) que tiene el token de GitHub como
+  secreto y lanza el trabajo. Solo permite una actualización por hora.
 
 El botón **🔄 Recargar** solo vuelve a leer `data/produccion.json` ya publicado,
 saltándose la caché del navegador.
@@ -73,3 +73,19 @@ saltándose la caché del navegador.
   antigua, que es la comparable.
 - Los productos se identifican por su código PRODCOM de 10 dígitos. La lista de
   productos cambia con los años, así que no todos tienen la serie completa.
+
+## El intermediario de Cloudflare
+
+Vive en `worker/` y se despliega con [Wrangler](https://developers.cloudflare.com/workers/wrangler/):
+
+```bash
+cd worker
+npx wrangler login                    # una vez
+npx wrangler deploy                   # publica el worker
+npx wrangler secret put GITHUB_TOKEN  # pega el token cuando lo pida
+```
+
+El token es uno *fine-grained* de GitHub, limitado a este repositorio y con el
+permiso **Actions: Read and write**. Cuando caduque, se crea otro y se repite el
+último comando. El límite entre actualizaciones (`MINUTOS_ENTRE_LANZAMIENTOS`) y el
+origen permitido están en `worker/wrangler.toml`.
