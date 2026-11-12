@@ -9,12 +9,17 @@ fabricada y valor económico— desde 2008, a partir de la
 | Ruta | Para qué |
 | --- | --- |
 | `index.html` | La web. Sin dependencias ni compilación. |
+| `final.html` | Página «Producción final»: los productos agrupados como el PIB. |
 | `data/produccion.json` | Los datos que lee la web. |
+| `data/final.json` | A qué producción final va cada producto (lo lee `final.html`). |
 | `data/crudo/` | Copia comprimida de lo descargado del INE, un fichero por año. |
 | `scripts/actualizar.py` | Descarga del INE y regenera `data/`. |
 | `scripts/ine_eip.py` | Cliente de la aplicación de consulta del INE. |
 | `scripts/ine_macro.py` | PIB y asalariados del INE, para la productividad. |
 | `scripts/nombres.py` | Nombres claros, emojis y unidades. **Edítalo para renombrar.** |
+| `scripts/produccion_final.py` | Genera `data/final.json` (lo llama `actualizar.py`). |
+| `scripts/ine_tio.py` | Tablas input-output del INE. |
+| `scripts/destinos.py` | Qué es bien final, qué insumo y de quién. **Edítalo para reclasificar.** |
 | `.github/workflows/actualizar.yml` | Actualización automática en GitHub. |
 | `worker/` | Intermediario en Cloudflare que lanza la actualización desde la web. |
 
@@ -98,6 +103,30 @@ Segunda pestaña de la web. Añade a cada producto cuánto trabajo representa:
   de 40 h semanales) se pueden cambiar en la propia web.
 - El TTSN depende solo de la productividad, así que es el mismo para todos los
   productos de una rama en un año.
+
+## La página «Producción final»
+
+`final.html` agrupa la misma producción como lo haría el PIB, que solo cuenta lo
+que llega al final: una lata de conservas no cuenta por sí misma, sino dentro de
+la conserva. Cada producto es un **bien final** (todo su valor va a un grupo:
+alimentación, vehículos, equipamiento del hogar…) o un **insumo**, que se reparte
+entre los grupos en los que acaba incorporado. Las dos columnas no se suman: el
+valor de los insumos ya está dentro del bien final que los lleva.
+
+| Paso | Con qué |
+| --- | --- |
+| ¿Final o insumo? | Los «grandes sectores industriales» de la UE (Reglamento (CE) 656/2007), afinados producto a producto en `scripts/destinos.py` |
+| Insumo con cliente claro (latas, piensos, cemento, piezas de coche) | Se reparte como la producción de las ramas que lo usan |
+| Insumo genérico (acero, química básica, plásticos) y energía | Se reparte según quién lo compra, siguiendo la cadena completa con la inversa de Leontief |
+
+- El reparto sale de la tabla input-output **interior** del INE (sin importaciones,
+  64 ramas): `x = (I − A)⁻¹ · f`. El script comprueba que cada tabla cuadra y que
+  la inversa reproduce la producción.
+- Los libros del INE solo traen la demanda final desde 2021; los años anteriores
+  usan la tabla de 2021, y los posteriores a la última, la última.
+- Lo que una rama de materiales exporta sin transformar va a «Materiales
+  exportados»: es producción final para España e insumo para otro país.
+- Tras tocar `destinos.py`: `python scripts/produccion_final.py --sin-descarga`.
 
 ## El intermediario de Cloudflare
 

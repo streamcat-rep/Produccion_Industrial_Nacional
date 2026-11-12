@@ -25,6 +25,7 @@ from pathlib import Path
 
 import ine_eip
 import ine_macro
+import produccion_final
 from nombres import SECTORES, emoji_de, nombre_de, unidad_clara
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -236,6 +237,11 @@ def main() -> int:
     temporal = SALIDA.with_suffix(".tmp")
     temporal.write_text(json.dumps(datos, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     temporal.replace(SALIDA)
+
+    # La página «Producción final» (final.html) clasifica estos mismos productos.
+    if not args.sin_descarga:
+        print("Descargando las tablas input-output…")
+    produccion_final.generar(datos, descargar=not args.sin_descarga)
 
     meta = datos["meta"]
     print(f"Listo: {len(datos['productos'])} productos, {meta['anyos'][0]}–{meta['ultimo']} "

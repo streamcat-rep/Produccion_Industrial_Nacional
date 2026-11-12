@@ -71,6 +71,9 @@
   .pestanas button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: none;
                      color: var(--suave); font-weight: 600; padding: 8px 12px; }
   .pestanas button[aria-current="page"] { color: var(--texto); border-bottom-color: var(--acento); }
+  .pestanas a { border-bottom: 3px solid transparent; color: var(--suave); font-weight: 600;
+                padding: 8px 12px; text-decoration: none; }
+  .pestanas a:hover { color: var(--texto); }
   .parametros { position: static; margin: 0 0 12px; padding: 0; }
   .parametros input { font: inherit; color: var(--texto); background: var(--panel); border: 1px solid var(--borde);
                       border-radius: 8px; padding: 8px 10px; min-height: 38px; width: 150px; }
@@ -96,6 +99,7 @@
   <nav class="pestanas" aria-label="Vistas">
     <button type="button" data-modo="produccion" aria-current="page">📦 Producción</button>
     <button type="button" data-modo="trabajo">⏱️ Trabajo necesario</button>
+    <a href="final.html">🧮 Producción final</a>
   </nav>
 </header>
 

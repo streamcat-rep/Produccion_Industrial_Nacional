@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Producción final de la industria española · INE</title>
+<meta name="description" content="La producción industrial de España agrupada como el PIB: por la producción final a la que va cada producto, con los insumos (envases, materiales, piezas) dentro del bien final que los lleva.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
+<style>
+  :root {
+    --fondo: #f6f7f9; --panel: #ffffff; --texto: #16191d; --suave: #5d6673; --borde: #dfe3e8;
+    --acento: #0b5cad; --fila: #f0f4f9; --marca: #fff3c4;
+    --serie-final: #2a78d6; --serie-insumo: #eb6834;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fondo: #0f1215; --panel: #171b20; --texto: #e7eaee; --suave: #98a2b0; --borde: #2a3038;
+      --acento: #6fb1f5; --fila: #1d232a; --marca: #4a3f10;
+      --serie-final: #3987e5; --serie-insumo: #d95926;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--texto);
+         font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header, main, footer { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
+  header { padding-top: 24px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 26px 0 4px; }
+  .sub { color: var(--suave); margin: 0; max-width: 78ch; }
+  a { color: var(--acento); }
+
+  .pestanas { display: flex; gap: 6px; margin-top: 16px; border-bottom: 1px solid var(--borde); flex-wrap: wrap; }
+  .pestanas a { border-bottom: 3px solid transparent; color: var(--suave); font-weight: 600;
+                padding: 8px 12px; text-decoration: none; }
+  .pestanas a:hover { color: var(--texto); }
+  .pestanas a[aria-current="page"] { color: var(--texto); border-bottom-color: var(--acento); }
+
+  .filtros { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin: 18px 0 12px;
+             position: sticky; top: 0; z-index: 5; background: var(--fondo); padding: 10px 0; }
+  .filtros label { display: flex; flex-direction: column; gap: 3px; font-size: .78rem; color: var(--suave); }
+  .filtros .crece { flex: 1 1 260px; }
+  input[type=number] { width: 9em; }
+  input[type=search], input[type=number], select, button {
+    font: inherit; color: var(--texto); background: var(--panel); border: 1px solid var(--borde);
+    border-radius: 8px; padding: 8px 10px; min-height: 38px; }
+  button { cursor: pointer; }
+  button:hover { border-color: var(--acento); }
+
+  .tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .tarjeta { background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; padding: 12px 14px; }
+  .tarjeta .rot { font-size: .78rem; color: var(--suave); }
+  .tarjeta .num { font-size: 1.35rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .tarjeta .nota { font-size: .8rem; color: var(--suave); }
+
+  .estado { color: var(--suave); font-size: .85rem; margin: 6px 0; }
+  .leyenda { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .85rem; color: var(--suave); margin: 4px 0 10px; }
+  .leyenda span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px;
+                          margin-right: 6px; vertical-align: -1px; background: var(--c); }
+
+  .tabla-caja { background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--borde); vertical-align: top; }
+  th { font-size: .78rem; color: var(--suave); font-weight: 600; white-space: nowrap; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody tr.grupo { cursor: pointer; }
+  tbody tr.grupo:hover { background: var(--fila); }
+  tbody tr.grupo:focus-visible { outline: 2px solid var(--acento); outline-offset: -2px; }
+  tfoot td { font-weight: 650; border-bottom: 0; }
+  .emoji { font-size: 1.35rem; width: 1%; padding-right: 0; }
+  .nombre { font-weight: 600; }
+  .meta { color: var(--suave); font-size: .8rem; }
+  .col-barra { width: 34%; min-width: 180px; vertical-align: middle; }
+  .barra { display: flex; gap: 2px; height: 14px; }
+  .barra i { display: block; height: 100%; border-radius: 4px; min-width: 2px; }
+  .barra .f { background: var(--serie-final); }
+  .barra .i { background: var(--serie-insumo); }
+  .detalle > td { background: var(--fila); padding: 12px 14px; }
+  .detalle .dos { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px 28px; }
+  .detalle h3 { font-size: .9rem; margin: 0 0 4px; }
+  .detalle h3::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px;
+                        margin-right: 6px; background: var(--c); }
+  .detalle table { font-size: .85rem; margin-bottom: 8px; }
+  .detalle th, .detalle td { padding: 4px 8px; background: transparent; }
+  .detalle .vacio { color: var(--suave); font-size: .85rem; margin: 0; }
+  .destinos { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+  .destinos span { background: var(--fila); border-radius: 6px; padding: 1px 7px; font-size: .8rem; white-space: nowrap; }
+  footer { color: var(--suave); font-size: .82rem; padding: 22px 16px 40px; }
+  footer li { margin-bottom: 5px; max-width: 110ch; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🧮 Producción final: la industria agrupada como el PIB</h1>
+  <p class="sub">El PIB solo cuenta lo que llega al final: una lata de conservas no cuenta por sí misma, cuenta
+    dentro de la conserva. Aquí cada producto industrial va al grupo de producción final en el que acaba su valor.
+    Fuentes: <a href="https://www.ine.es/dyngs/INEbase/operacion.htm?c=Estadistica_C&cid=1254736149053&menu=resultados&idp=1254735576715" rel="noopener">Encuesta Industrial Anual de Productos</a>
+    y <a href="https://www.ine.es/dyngs/INEbase/es/operacion.htm?c=Estadistica_C&cid=1254736177058&menu=resultados&idp=1254735576581" rel="noopener">tablas input-output</a> del INE.</p>
+  <nav class="pestanas" aria-label="Vistas">
+    <a href="index.html">📦 Producción y trabajo necesario</a>
+    <a href="final.html" aria-current="page">🧮 Producción final</a>
+  </nav>
+</header>
+
+<main>
+  <div class="filtros">
+    <label>Año
+      <select id="anyo" aria-label="Año"></select>
+    </label>
+    <label class="crece">¿Dónde acaba un producto?
+      <input id="buscar" type="search" placeholder="Busca por nombre o código PRODCOM: latas, cemento, 2592…" autocomplete="off">
+    </label>
+    <label>Salario a producir (€)
+      <input id="salario" type="number" min="1" step="50" value="2500">
+    </label>
+    <label>Jornada anual (horas)
+      <input id="jornada" type="number" min="1" step="1" value="1826">
+    </label>
+    <button id="csv" type="button" title="Descargar la clasificación de todos los productos con su reparto">⬇️ CSV</button>
+  </div>
+
+  <div class="tarjetas" id="tarjetas"></div>
+  <p class="estado" id="estado" role="status">Cargando datos…</p>
+
+  <section id="vistaProductos" hidden>
+    <h2>Productos encontrados</h2>
+    <p class="estado" id="estadoProductos"></p>
+    <div class="tabla-caja">
+      <table>
+        <thead><tr><th></th><th>Producto</th><th>Etapa oficial</th><th>Cómo se trata</th><th>Dónde acaba su valor</th><th class="n">Valor</th></tr></thead>
+        <tbody id="filasProductos"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <h2>Grupos de producción final</h2>
+  <div class="leyenda" aria-hidden="true">
+    <span style="--c: var(--serie-final)">Bienes finales (lo que cuenta como producción final)</span>
+    <span style="--c: var(--serie-insumo)">Insumos que acaban en el grupo (ya van dentro del valor del bien final)</span>
+  </div>
+  <div class="tabla-caja">
+    <table>
+      <thead><tr><th></th><th>Grupo</th>
+        <th title="Cantidad de bienes finales, sumada solo entre productos de la misma unidad">Unidades (bienes finales)</th>
+        <th class="n" title="Valor de la producción de bienes finales">Bienes finales</th>
+        <th class="n" title="Valor de los insumos que acaban en el grupo: ya va dentro del de los bienes finales">Insumos incorporados</th>
+        <th class="n" title="Trabajo de un año que equivale al valor de los bienes finales, con la productividad de su rama">Años-persona</th>
+        <th class="n" title="Horas para producir el salario indicado en este grupo: media ponderada por valor, no suma">TTSN</th>
+        <th class="col-barra"></th></tr></thead>
+      <tbody id="filasGrupos"></tbody>
+      <tfoot id="pieGrupos"></tfoot>
+    </table>
+  </div>
+</main>
+
+<footer>
+  <ul>
+    <li><strong>Por qué dos columnas</strong>: la suma de la encuesta cuenta varias veces lo mismo (el acero, y otra vez dentro del coche).
+      Los <strong>bienes finales</strong> son la parte sin repetir; los <strong>insumos incorporados</strong> no se suman a ellos:
+      su valor ya está dentro del bien final que los lleva, sea industrial (alimentos, vehículos) o no (edificios, servicios, que esta encuesta no mide).</li>
+    <li><strong>Etapa oficial</strong>: los «grandes sectores industriales» de la UE (Reglamento (CE) 656/2007) asignan cada grupo de la CNAE
+      a consumo, equipo, intermedios o energía. Sobre esa base, <code>scripts/destinos.py</code> afina producto a producto: el papel higiénico
+      es un bien final aunque su rama sea «intermedia», y la harina o los componentes de automoción son insumos aunque la suya sea «final».</li>
+    <li><strong>Insumo con cliente claro</strong> (latas de conserva, piensos, cemento, piezas de automóvil): se reparte como la producción de las ramas que lo usan.
+      Las latas van a la industria alimentaria, y lo que ella produce acaba sobre todo en alimentación, y una parte en hostelería.</li>
+    <li><strong>Insumo genérico</strong> (acero, química básica, plásticos, papel): se reparte según quién lo compra en la tabla input-output
+      interior del INE, siguiendo toda la cadena con la inversa de Leontief. La parte que se exporta sin transformar va a «Materiales exportados».</li>
+    <li><strong>Energía</strong>: una parte la consumen directamente hogares y exportación y el resto es insumo de todo lo demás; se reparte con la misma tabla.</li>
+    <li><strong>Límites</strong>: la tabla input-output tiene 64 ramas, así que todos los insumos genéricos de una rama se reparten igual; solo hay tablas completas
+      desde 2021, y los años anteriores usan la de 2021. Los repartos son estimaciones de estructura, no datos de la encuesta. Dentro de la alimentación quedan
+      insumos contados como finales (el aceite lampante que se refina, por ejemplo): la etapa oficial no baja a ese detalle.</li>
+    <li><strong>Valor</strong>: euros corrientes de la producción vendida. «Insumos incorporados» no descuenta las importaciones que a su vez llevan.</li>
+    <li><strong>Unidades</strong>: solo se suman productos medidos en la misma unidad. Antes se pasan los múltiplos a una común (kilos a toneladas,
+      miles de unidades a unidades, hectolitros a litros…). Las unidades técnicas (toneladas de N, CGT, terajulios…) quedan aparte. De un insumo repartido
+      solo cuenta la parte de su cantidad que va al grupo. Hay productos de los que el INE solo publica el valor.</li>
+    <li><strong>Años-persona</strong>: valor de los bienes finales entre la productividad (valor añadido por asalariado) de su rama. Solo de los bienes
+      finales: sumar también los insumos contaría dos veces el mismo trabajo. Se pueden sumar entre grupos.</li>
+    <li><strong>TTSN</strong>: horas de trabajo necesarias para producir el valor del salario indicado. <em>No se suma</em>: los productos de un grupo se
+      fabrican a la vez, en paralelo, por trabajadores distintos: sumar las horas de cada producto daría el tiempo de hacerlos uno detrás de otro. El TTSN de un grupo
+      se calcula con la productividad conjunta de las ramas que lo fabrican (bienes finales e insumos): valor total entre años-persona totales, es decir,
+      la media armónica de sus productividades ponderada por valor. Con la productividad media de la economía o de toda la industria el TTSN es el mismo
+      para todos los grupos (tarjetas de arriba). El INE solo da dos ramas industriales (manufactura; extractivas, energía y agua), así que las diferencias
+      entre grupos vienen solo de cuánto pesa cada una de ellas.</li>
+    <li id="pieFecha"></li>
+  </ul>
+</footer>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const fmtNum = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 });
+const fmtPct = new Intl.NumberFormat("es-ES", { style: "percent", maximumFractionDigits: 0 });
+const MAX_PRODUCTOS = 60;
+const TOP = 8;
+
+let datos = null;   // produccion.json
+let final = null;   // final.json
+let n = 0;          // posición del año elegido
+let abierto = null; // id del grupo desplegado
+let calculo = null; // agregados del año elegido
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+// Los valores vienen en miles de euros: se muestran en millones.
+const millones = (miles) => fmtNum.format(miles / 1000) + " M€";
+const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+async function leer(url) {
+  // "no-cache": preguntar siempre al servidor, para no mezclar página nueva con datos viejos.
+  const resp = await fetch(url, { cache: "no-cache" });
+  if (!resp.ok) throw new Error(`${url}: ${resp.status}`);
+  return resp.json();
+}
+
+const fmtDec = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const fmtCorto = new Intl.NumberFormat("es-ES", { notation: "compact", maximumFractionDigits: 1 });
+const horas = (x) => (x == null ? "—" : fmtDec.format(x) + " h");
+const anios = (x) => (x == null ? "—" : x >= 100 ? fmtNum.format(x) : fmtDec.format(x));
+
+// Las cantidades solo se suman entre productos de la misma unidad. Antes se llevan
+// los múltiplos a una unidad común (kg a t, miles de unidades a unidades…).
+const CONVERSION = {
+  "kilogramos": ["toneladas", 0.001],
+  "miles de unidades": ["unidades", 1000],
+  "miles de metros cuadrados": ["metros cuadrados", 1000],
+  "miles de metros cúbicos": ["metros cúbicos", 1000],
+  "miles de litros": ["litros", 1000],
+  "hectolitros": ["litros", 100],
+};
+const ABREVIATURA = { "toneladas": "t", "unidades": "uds", "metros cuadrados": "m²", "metros cúbicos": "m³", "litros": "l" };
+/** [unidad común, cantidad] de un producto en el año elegido, o null si no hay cantidad. */
+function cantidad(p) {
+  const q = p.q[n];
+  if (q == null || !p.u) return null;
+  const [u, f] = CONVERSION[p.u] || [p.u, 1];
+  return [u, q * f];
+}
+// El formato compacto en español no pasa a «mil M» hasta 10.000 millones: se fuerza desde 1.000 millones.
+const corto = (q) => (Math.abs(q) >= 1e9 ? fmtDec.format(q / 1e9).replace(/,0$/, "") + " mil M" : fmtCorto.format(q));
+const conUnidad = (q, u) => `${corto(q)} ${ABREVIATURA[u] || u}`;
+
+/** Productividad (€ por asalariado y año) de la economía y de cada rama, en el año elegido. */
+function productividad() {
+  const m = datos.macro;
+  const cociente = (millones, miles) => (millones != null && miles ? (millones * 1000) / miles : null);
+  const ramas = {};
+  for (const [clave, r] of Object.entries(m?.ramas ?? {})) ramas[clave] = cociente(r.vab[n], r.asalariados[n]);
+  return { media: m ? cociente(m.pib[n], m.asalariados[n]) : null, ramas };
+}
+/** Horas de trabajo para producir el salario con una productividad anual dada. */
+function ttsn(productiv) {
+  const salario = Number($("salario").value) || 0, jornada = Number($("jornada").value) || 0;
+  return productiv && salario && jornada ? (salario / productiv) * jornada : null;
+}
+
+/** Reparto de un producto entre grupos en el año elegido: [[posición del grupo, cuota], …]. */
+function reparto(codigo) {
+  const [, rid] = final.productos[codigo];
+  const regla = final.reglas[rid];
+  if (regla.t === "final") return [[final.grupos.findIndex((g) => g.id === regla.g), 1]];
+  return final.perfiles[rid][n].map((cuota, g) => [g, cuota]).filter(([, cuota]) => cuota > 0);
+}
+
+/** Suma una cantidad en un mapa unidad -> {q, v, k} (cantidad, valor y nº de productos). */
+function sumarUnidad(mapa, p, cuota, v) {
+  const c = cantidad(p);
+  const clave = c ? c[0] : "";  // "": productos de los que solo se publica el valor
+  const u = mapa.get(clave) || { q: 0, v: 0, k: 0 };
+  if (c) u.q += c[1] * cuota;
+  u.v += v; u.k += 1;
+  mapa.set(clave, u);
+}
+
+function calcular() {
+  const prod = productividad();
+  const nuevo = () => ({ fin: 0, ins: 0, ap: 0, vPond: 0, apPond: 0, uds: new Map(), udsIns: new Map() });
+  const grupos = final.grupos.map((g) => ({ ...g, ...nuevo(), finales: [], insumos: [] }));
+  const todo = nuevo();
+  let total = 0;
+  for (const p of datos.productos) {
+    const v = p.v[n];
+    if (!v || !final.productos[p.c]) continue;
+    total += v;
+    const esFinal = final.reglas[final.productos[p.c][1]].t === "final";
+    const deRama = prod.ramas[datos.sectores[p.s]?.r] ?? null;
+    for (const [g, cuota] of reparto(p.c)) {
+      const parte = v * cuota, grupo = grupos[g];
+      for (const acum of [grupo, todo]) {
+        if (esFinal) {
+          acum.fin += parte;
+          sumarUnidad(acum.uds, p, cuota, parte);
+          // Años-persona: solo de los bienes finales, que ya llevan dentro el valor de sus insumos.
+          if (deRama) acum.ap += (parte * 1000) / deRama;
+        } else {
+          acum.ins += parte;
+          sumarUnidad(acum.udsIns, p, cuota, parte);
+        }
+        // TTSN: media de las ramas que fabrican el grupo (finales e insumos), ponderada por valor.
+        if (deRama) { acum.vPond += parte * 1000; acum.apPond += (parte * 1000) / deRama; }
+      }
+      (esFinal ? grupo.finales : grupo.insumos).push([p, parte, cuota]);
+    }
+  }
+  // Productividad del grupo = valor / años-persona (media armónica ponderada): su TTSN no es una suma.
+  for (const g of [...grupos, todo]) g.tt = g.apPond ? ttsn(g.vPond / g.apPond) : null;
+  grupos.sort((a, b) => b.fin + b.ins - (a.fin + a.ins));
+  calculo = { grupos, todo, total, valorFinal: todo.fin, prod, max: Math.max(...grupos.map((g) => g.fin + g.ins)) };
+}
+
+/** Las unidades de un mapa, de mayor a menor valor, sin la de «solo valor». */
+const unidades = (mapa) => [...mapa].filter(([u]) => u).sort((a, b) => b[1].v - a[1].v);
+
+function celdaUnidades(mapa) {
+  const lista = unidades(mapa);
+  if (!lista.length) return '<span class="meta">—</span>';
+  const titulo = lista.map(([u, x]) => `${conUnidad(x.q, u)} (${x.k} productos)`).join("\n");
+  return `<div class="destinos" title="${esc(titulo)}">${lista.slice(0, 3).map(([u, x]) =>
+    `<span>${conUnidad(x.q, u)}</span>`).join("")}${lista.length > 3 ? `<span class="meta">+${lista.length - 3}</span>` : ""}</div>`;
+}
+
+function tablaUnidades(mapa, total) {
+  const lista = [...mapa].sort((a, b) => b[1].v - a[1].v);
+  if (!lista.length) return "";
+  return `<table><thead><tr><th>Unidad</th><th class="n">Cantidad</th><th class="n">Productos</th><th class="n">Valor</th><th class="n">%</th></tr></thead><tbody>
+    ${lista.map(([u, x]) => `<tr><td>${u ? esc(u) : '<span class="meta">Solo se publica el valor</span>'}</td>
+      <td class="n">${u ? fmtNum.format(x.q) : "—"}</td><td class="n">${x.k}</td>
+      <td class="n">${millones(x.v)}</td><td class="n">${fmtPct.format(x.v / total)}</td></tr>`).join("")}
+    </tbody></table>`;
+}
+
+function pintarTarjetas() {
+  const { total, valorFinal, todo, prod } = calculo;
+  const tarjetas = [
+    ["Suma de la encuesta", millones(total), "Todo lo vendido por la industria, con repeticiones"],
+    ["Bienes finales", millones(valorFinal), `${fmtPct.format(valorFinal / total)} de la suma: consumo y equipo`],
+    ["Insumos y energía", millones(total - valorFinal), `${fmtPct.format(1 - valorFinal / total)} de la suma: acaban dentro de otro producto`],
+    ["Años-persona de los bienes finales", anios(todo.ap), "Su valor entre la productividad de su rama"],
+    ["TTSN · media de la economía · industria", `${horas(ttsn(prod.media))} · ${horas(ttsn(prod.ramas.IND))}`,
+     "Iguales para todos los grupos: la productividad no cambia de uno a otro"],
+    ["TTSN de toda la producción industrial", horas(todo.tt), "Media ponderada por valor de sus ramas, no una suma"],
+  ];
+  $("tarjetas").innerHTML = tarjetas.map(([rot, num, nota]) =>
+    `<div class="tarjeta"><div class="rot">${rot}</div><div class="num">${num}</div><div class="nota">${nota}</div></div>`).join("");
+}
+
+function porSector(pares) {
+  const suma = new Map();
+  for (const [p, v] of pares) suma.set(p.s, (suma.get(p.s) || 0) + v);
+  return [...suma].sort((a, b) => b[1] - a[1]);
+}
+
+function tablaDetalle(pares, total) {
+  if (!pares.length) return "";
+  const sectores = porSector(pares);
+  const filaSector = ([s, v]) => {
+    const sec = datos.sectores[s] || { e: "🏭", n: s };
+    return `<tr><td>${sec.e} ${esc(sec.n)}</td><td class="n">${millones(v)}</td><td class="n">${fmtPct.format(v / total)}</td></tr>`;
+  };
+  const productos = [...pares].sort((a, b) => b[1] - a[1]).slice(0, TOP);
+  const resto = sectores.slice(TOP).reduce((s, [, v]) => s + v, 0);
+  const cant = (p, cuota) => {
+    const c = cantidad(p);
+    return c ? conUnidad(c[1] * cuota, c[0]) : "—";
+  };
+  return `<table><thead><tr><th>Sector de origen</th><th class="n">Valor</th><th class="n">%</th></tr></thead><tbody>
+    ${sectores.slice(0, TOP).map(filaSector).join("")}
+    ${resto ? `<tr><td class="meta">Otros ${sectores.length - TOP} sectores</td><td class="n">${millones(resto)}</td><td class="n">${fmtPct.format(resto / total)}</td></tr>` : ""}
+    </tbody></table>
+    <table><thead><tr><th>Productos que más pesan</th><th class="n">Cantidad</th><th class="n">Valor</th></tr></thead><tbody>
+    ${productos.map(([p, v, cuota]) => `<tr><td>${p.e} ${esc(p.n)} <span class="meta">${p.c}${cuota < 1 ? ` · ${fmtPct.format(cuota)} de lo producido` : ""}</span></td>
+      <td class="n">${cant(p, cuota)}</td><td class="n">${millones(v)}</td></tr>`).join("")}
+    </tbody></table>`;
+}
+
+function pintarGrupos() {
+  const { grupos, max } = calculo;
+  const ancho = (v) => `${Math.max(v / max * 100, 0).toFixed(2)}%`;
+  $("filasGrupos").innerHTML = grupos.map((g) => {
+    const fila = `<tr class="grupo" data-id="${g.id}" tabindex="0" aria-expanded="${abierto === g.id}">
+      <td class="emoji">${g.e}</td>
+      <td><div class="nombre">${esc(g.n)}</div><div class="meta">${esc(g.d)}</div></td>
+      <td>${celdaUnidades(g.uds)}</td>
+      <td class="n">${g.fin ? millones(g.fin) : "—"}</td>
+      <td class="n">${g.ins ? millones(g.ins) : "—"}</td>
+      <td class="n">${g.fin ? anios(g.ap) : "—"}</td>
+      <td class="n">${horas(g.tt)}</td>
+      <td class="col-barra"><div class="barra" role="img" aria-label="${esc(g.n)}: ${millones(g.fin)} en bienes finales y ${millones(g.ins)} en insumos">
+        ${g.fin ? `<i class="f" style="width:${ancho(g.fin)}" title="Bienes finales: ${millones(g.fin)}"></i>` : ""}
+        ${g.ins ? `<i class="i" style="width:${ancho(g.ins)}" title="Insumos incorporados: ${millones(g.ins)}"></i>` : ""}
+      </div></td></tr>`;
+    if (abierto !== g.id) return fila;
+    return fila + `<tr class="detalle"><td colspan="8"><div class="dos">
+      <div><h3 style="--c: var(--serie-final)">Bienes finales</h3>
+        ${tablaDetalle(g.finales, g.fin) ? tablaUnidades(g.uds, g.fin) + tablaDetalle(g.finales, g.fin)
+          : `<p class="vacio">La industria no fabrica bienes finales de este grupo: lo que acaba aquí son insumos de la construcción, de los servicios o de la producción de otros países, que esta encuesta no mide.</p>`}</div>
+      <div><h3 style="--c: var(--serie-insumo)">Insumos que acaban en este grupo</h3>
+        ${tablaDetalle(g.insumos, g.ins) ? tablaUnidades(g.udsIns, g.ins) + tablaDetalle(g.insumos, g.ins) : `<p class="vacio">Ningún insumo.</p>`}</div>
+    </div></td></tr>`;
+  }).join("");
+  const { todo } = calculo;
+  $("pieGrupos").innerHTML = `<tr><td></td><td>Total</td>
+    <td class="meta" title="Toneladas, unidades o metros no se suman entre sí">Cada unidad por separado</td>
+    <td class="n">${millones(todo.fin)}</td><td class="n">${millones(todo.ins)}</td>
+    <td class="n">${anios(todo.ap)}</td><td class="n" title="Media ponderada, no suma">${horas(todo.tt)}</td><td></td></tr>`;
+}
+
+function tratamiento(codigo) {
+  const regla = final.reglas[final.productos[codigo][1]];
+  if (regla.t === "final") return "Bien final";
+  if (regla.t === "usuarios") return `Insumo de: ${regla.k.join("; ")}`;
+  if (regla.t === "energia") return "Energía: consumo directo e insumo";
+  return `Insumo genérico de: ${regla.r}`;
+}
+
+function pintarProductos() {
+  const texto = norm($("buscar").value.trim());
+  $("vistaProductos").hidden = !texto;
+  if (!texto) return;
+  const palabras = texto.split(/\s+/);
+  const encontrados = datos.productos
+    .filter((p) => final.productos[p.c] && palabras.every((w) => p._b.includes(w)))
+    .sort((a, b) => (b.v[n] || 0) - (a.v[n] || 0));
+  $("estadoProductos").textContent = encontrados.length > MAX_PRODUCTOS
+    ? `${fmtNum.format(encontrados.length)} productos; se muestran los ${MAX_PRODUCTOS} de más valor.`
+    : `${fmtNum.format(encontrados.length)} productos.`;
+  $("filasProductos").innerHTML = encontrados.slice(0, MAX_PRODUCTOS).map((p) => {
+    const destinos = reparto(p.c).sort((a, b) => b[1] - a[1]).filter(([, cuota]) => cuota >= 0.03);
+    return `<tr><td class="emoji">${p.e}</td>
+      <td><div class="nombre">${esc(p.n)}</div><div class="meta">${p.c} · ${esc((datos.sectores[p.s] || {}).n || "")}</div></td>
+      <td>${esc(final.etapas[final.productos[p.c][0]])}</td>
+      <td>${esc(tratamiento(p.c))}</td>
+      <td><div class="destinos">${destinos.map(([g, cuota]) =>
+        `<span>${final.grupos[g].e} ${esc(final.grupos[g].n)} ${fmtPct.format(cuota)}</span>`).join("")}</div></td>
+      <td class="n">${p.v[n] == null ? "—" : millones(p.v[n])}</td></tr>`;
+  }).join("");
+}
+
+function pintar() {
+  calcular();
+  pintarTarjetas();
+  pintarGrupos();
+  pintarProductos();
+  const anyo = datos.meta.anyos[n];
+  $("estado").textContent = `${anyo}: reparto de los insumos con la tabla input-output de ${final.meta.tio[n]}. Pulsa un grupo para ver qué lleva dentro.`;
+}
+
+function descargarCsv() {
+  const anyo = datos.meta.anyos[n], { prod } = calculo;
+  const cab = ["prodcom", "producto", "sector", "etapa_oficial", "tratamiento", "unidad", `cantidad_${anyo}`,
+               `valor_${anyo}_miles_eur`, "anios_persona_rama", "ttsn_rama_horas", ...final.grupos.map((g) => g.id)];
+  const dec = (x) => (x == null ? "" : String(Math.round(x * 100) / 100).replace(".", ","));
+  const celda = (x) => `"${String(x ?? "").replace(/"/g, '""')}"`;
+  const lineas = [cab.map(celda).join(";")];
+  for (const p of datos.productos) {
+    if (!final.productos[p.c]) continue;
+    const cuotas = new Array(final.grupos.length).fill(0);
+    for (const [g, cuota] of reparto(p.c)) cuotas[g] = cuota;
+    const deRama = prod.ramas[datos.sectores[p.s]?.r] ?? null;
+    lineas.push([p.c, p.n, (datos.sectores[p.s] || {}).n, final.etapas[final.productos[p.c][0]], tratamiento(p.c),
+                 p.u, p.q[n], p.v[n], p.v[n] != null && deRama ? dec((p.v[n] * 1000) / deRama) : "", dec(ttsn(deRama)),
+                 ...cuotas.map((c) => String(c).replace(".", ","))].map(celda).join(";"));
+  }
+  const enlace = document.createElement("a");
+  enlace.href = URL.createObjectURL(new Blob(["﻿" + lineas.join("\r\n")], { type: "text/csv;charset=utf-8" }));
+  enlace.download = `produccion-final-${anyo}.csv`;
+  enlace.click();
+  URL.revokeObjectURL(enlace.href);
+}
+
+async function iniciar() {
+  try {
+    [datos, final] = await Promise.all([leer("data/produccion.json"), leer("data/final.json")]);
+  } catch (err) {
+    $("estado").textContent = `No se pudieron cargar los datos (${err.message}). Abre la página desde un servidor, no con doble clic.`;
+    return;
+  }
+  for (const p of datos.productos) p._b = norm(`${p.n} ${p.o.join(" ")} ${p.c}`);
+  const anyos = datos.meta.anyos;
+  $("anyo").innerHTML = anyos.map((a, i) => `<option value="${i}">${a}</option>`).reverse().join("");
+  n = anyos.length - 1;
+  $("anyo").value = n;
+  $("pieFecha").textContent = `Clasificación generada el ${new Date(final.meta.generado).toLocaleDateString("es-ES")}.`;
+  pintar();
+}
+
+function alternar(ev) {
+  const fila = ev.target.closest("tr.grupo");
+  if (!fila || (ev.type === "keydown" && ev.key !== "Enter" && ev.key !== " ")) return;
+  ev.preventDefault();
+  abierto = abierto === fila.dataset.id ? null : fila.dataset.id;
+  pintarGrupos();
+}
+
+$("anyo").addEventListener("change", (ev) => { n = Number(ev.target.value); pintar(); });
+$("buscar").addEventListener("input", pintarProductos);
+for (const id of ["salario", "jornada"]) $(id).addEventListener("input", () => datos && pintar());
+$("csv").addEventListener("click", descargarCsv);
+$("filasGrupos").addEventListener("click", alternar);
+$("filasGrupos").addEventListener("keydown", alternar);
+iniciar();
+</script>
+</body>
+</html>
