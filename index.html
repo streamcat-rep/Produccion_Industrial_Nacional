@@ -247,7 +247,9 @@ async function cargar(forzar) {
   $("estado").textContent = "Cargando datos…";
   try {
     const url = forzar ? `${URL_DATOS}?t=${Date.now()}` : URL_DATOS;
-    const resp = await fetch(url, { cache: forzar ? "no-store" : "default" });
+    // "no-cache": el navegador siempre pregunta al servidor si los datos han cambiado,
+    // así la página nueva nunca se queda con un fichero de datos antiguo.
+    const resp = await fetch(url, { cache: forzar ? "no-store" : "no-cache" });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     datos = await resp.json();
     for (const p of datos.productos) {
