@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Producción industrial de España por producto · INE</title>
+<meta name="description" content="Producción industrial de España por producto (cantidad y valor) desde 2008, según la Encuesta Industrial Anual de Productos del INE.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏭</text></svg>">
+<style>
+  :root {
+    --fondo: #f6f7f9; --panel: #ffffff; --texto: #16191d; --suave: #5d6673; --borde: #dfe3e8;
+    --acento: #0b5cad; --sube: #0a7a3d; --baja: #c22f2f; --fila: #f0f4f9; --marca: #fff3c4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fondo: #0f1215; --panel: #171b20; --texto: #e7eaee; --suave: #98a2b0; --borde: #2a3038;
+      --acento: #6fb1f5; --sube: #4fcb85; --baja: #f17b7b; --fila: #1d232a; --marca: #4a3f10;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--texto);
+         font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header, main, footer { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
+  header { padding-top: 24px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .sub { color: var(--suave); margin: 0; }
+  a { color: var(--acento); }
+
+  .filtros { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin: 18px 0 12px;
+             position: sticky; top: 0; z-index: 5; background: var(--fondo); padding: 10px 0; }
+  .filtros label { display: flex; flex-direction: column; gap: 3px; font-size: .78rem; color: var(--suave); }
+  .filtros .crece { flex: 1 1 260px; }
+  input[type=search], select, button {
+    font: inherit; color: var(--texto); background: var(--panel); border: 1px solid var(--borde);
+    border-radius: 8px; padding: 8px 10px; min-height: 38px; }
+  select { max-width: 320px; }
+  button { cursor: pointer; }
+  button:hover { border-color: var(--acento); }
+  button.principal { background: var(--acento); color: var(--panel); border-color: var(--acento); font-weight: 600; }
+  button:disabled { opacity: .6; cursor: progress; }
+  .casilla { flex-direction: row !important; align-items: center; gap: 6px !important; font-size: .85rem !important; min-height: 38px; }
+
+  .tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .tarjeta { background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; padding: 12px 14px; }
+  .tarjeta .rot { font-size: .78rem; color: var(--suave); }
+  .tarjeta .num { font-size: 1.35rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+
+  .aviso { background: var(--marca); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: .88rem; }
+  .estado { color: var(--suave); font-size: .85rem; margin: 6px 0; }
+
+  .tabla-caja { background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--borde); vertical-align: top; }
+  th { font-size: .78rem; color: var(--suave); font-weight: 600; white-space: nowrap; user-select: none; }
+  th button { all: unset; cursor: pointer; }
+  th button:focus-visible { outline: 2px solid var(--acento); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody tr.prod { cursor: pointer; }
+  tbody tr.prod:hover { background: var(--fila); }
+  .emoji { font-size: 1.35rem; width: 1%; padding-right: 0; }
+  .nombre { font-weight: 600; }
+  .meta { color: var(--suave); font-size: .8rem; }
+  .ud { color: var(--suave); font-size: .78rem; }
+  .sube { color: var(--sube); } .baja { color: var(--baja); } .nulo { color: var(--suave); }
+  .detalle td { background: var(--fila); padding: 12px 14px; }
+  .detalle table { width: auto; min-width: 60%; font-size: .85rem; }
+  .detalle th, .detalle td { padding: 4px 10px; background: transparent; }
+  .barra { display: inline-block; height: 8px; background: var(--acento); border-radius: 2px; vertical-align: middle; }
+  .mas { display: block; margin: 14px auto; }
+  dialog { background: var(--panel); color: var(--texto); border: 1px solid var(--borde); border-radius: 12px;
+           max-width: 560px; padding: 20px 22px; }
+  dialog::backdrop { background: rgba(0, 0, 0, .45); }
+  dialog h2 { margin: 0 0 8px; font-size: 1.15rem; }
+  dialog pre { background: var(--fila); padding: 8px 10px; border-radius: 6px; overflow-x: auto; }
+  dialog label { display: flex; flex-direction: column; gap: 3px; font-size: .8rem; color: var(--suave); }
+  dialog input { font: inherit; color: var(--texto); background: var(--fondo); border: 1px solid var(--borde);
+                 border-radius: 8px; padding: 8px 10px; }
+  .dlg-botones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+  footer { color: var(--suave); font-size: .82rem; padding: 22px 16px 40px; }
+  footer li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏭 Producción industrial de España, producto a producto</h1>
+  <p class="sub">Cantidad fabricada y valor económico de cada producto industrial, <span id="rango">desde 2008</span>.
+    Fuente: <a href="https://www.ine.es/dyngs/INEbase/operacion.htm?c=Estadistica_C&cid=1254736149053&menu=resultados&idp=1254735576715" rel="noopener">INE, Encuesta Industrial Anual de Productos</a>.</p>
+</header>
+
+<main>
+  <div class="filtros">
+    <label>Año
+      <select id="anyo" aria-label="Año"></select>
+    </label>
+    <label class="crece">Producto
+      <input id="buscar" type="search" placeholder="Busca por nombre o código PRODCOM: cerveza, acero, 1105…" autocomplete="off">
+    </label>
+    <label>Sector
+      <select id="sector" aria-label="Sector"><option value="">Todos los sectores</option></select>
+    </label>
+    <label class="casilla"><input id="sinDato" type="checkbox"> Incluir productos sin dato ese año</label>
+    <button id="csv" type="button" title="Descargar lo que ves en la tabla">⬇️ CSV</button>
+    <button id="refrescar" type="button" title="Vuelve a leer los datos ya publicados (sin consultar al INE)">🔄 Recargar</button>
+    <button id="actualizar" type="button" class="principal" title="Lanza en GitHub la descarga de datos nuevos del INE">⚡ Actualizar desde el INE</button>
+  </div>
+
+  <dialog id="dlg">
+    <h2>⚡ Actualizar desde el INE</h2>
+    <p>Esta web es estática: la descarga del INE la hace un trabajo de GitHub Actions
+       (unos 15 minutos) que guarda los datos nuevos en el repositorio.</p>
+    <div id="dlgLocal" hidden>
+      <p><strong>Ahora mismo no estás en GitHub Pages.</strong> En local, actualiza con:</p>
+      <pre>python scripts/actualizar.py</pre>
+    </div>
+    <div id="dlgPages">
+      <p><strong>Opción 1 · sin configurar nada:</strong>
+         <a id="dlgEnlace" target="_blank" rel="noopener">abrir el trabajo en GitHub</a> y pulsar «Run workflow».</p>
+      <p><strong>Opción 2 · lanzarlo desde este botón:</strong> pega un token de GitHub
+         (<em>fine-grained</em>, solo para este repositorio, con permiso <em>Actions: Read and write</em>).
+         Se guarda únicamente en este navegador.</p>
+      <label>Token <input id="dlgToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
+    </div>
+    <p class="estado" id="dlgEstado" role="status"></p>
+    <div class="dlg-botones">
+      <button id="dlgOlvidar" type="button" hidden>Olvidar token</button>
+      <button id="dlgCerrar" type="button">Cerrar</button>
+      <button id="dlgLanzar" type="button" class="principal">Lanzar actualización</button>
+    </div>
+  </dialog>
+
+  <div class="tarjetas" id="tarjetas"></div>
+  <div class="aviso" id="aviso" hidden></div>
+  <p class="estado" id="estado" role="status">Cargando datos…</p>
+
+  <div class="tabla-caja">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th><button data-orden="n">Producto</button></th>
+          <th class="n"><button data-orden="q">Unidades producidas</button></th>
+          <th class="n"><button data-orden="dq" title="Variación de la cantidad respecto al año anterior">% vs año anterior</button></th>
+          <th class="n"><button data-orden="v">Valor económico</button></th>
+          <th class="n"><button data-orden="dv" title="Variación del valor respecto al año anterior">% vs año anterior</button></th>
+        </tr>
+      </thead>
+      <tbody id="filas"></tbody>
+    </table>
+  </div>
+  <button id="mas" class="mas" type="button" hidden>Mostrar más</button>
+</main>
+
+<footer>
+  <ul>
+    <li><strong>Valor</strong>: valor de la producción, en euros corrientes (sin descontar inflación). El INE lo publica en miles de euros.</li>
+    <li><strong>«—»</strong>: dato no publicado (secreto estadístico o no disponible). Un <strong>0</strong> significa que ninguna empresa de la muestra lo fabricó.</li>
+    <li><strong>2021 ⚠️</strong>: ese año cambió la encuesta (Reglamento UE 2019/2152: solo cuenta lo fabricado en territorio español). Se muestra el dato nuevo de 2021; su variación frente a 2020 se calcula con la encuesta antigua, que sí es comparable.</li>
+    <li id="pieFecha"></li>
+  </ul>
+</footer>
+
+<script>
+"use strict";
+const URL_DATOS = "data/produccion.json";
+const PAGINA = 100;
+const $ = (id) => document.getElementById(id);
+const fmtNum = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 });
+const fmtDec = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const fmtPct = new Intl.NumberFormat("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero" });
+
+let datos = null;      // contenido de produccion.json
+let vista = [];        // productos filtrados y ordenados, con sus cifras del año elegido
+let mostrados = 0;
+let orden = { campo: "v", desc: true };
+let abierto = null;    // código del producto con el histórico desplegado
+
+const sinTildes = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/** Valor en miles de euros -> texto en euros legible. */
+function euros(miles) {
+  if (miles == null) return "—";
+  const e = miles * 1000;
+  if (Math.abs(e) >= 1e9) return fmtDec.format(e / 1e9) + " mil M€";
+  if (Math.abs(e) >= 1e6) return fmtDec.format(e / 1e6) + " M€";
+  return fmtNum.format(e) + " €";
+}
+const cantidad = (x) => (x == null ? "—" : fmtNum.format(x));
+
+/** Variación % del año i frente al anterior. En el año de ruptura compara dentro de la encuesta antigua. */
+function variacion(p, serie, i) {
+  if (i <= 0) return null;
+  const anyo = datos.meta.anyos[i];
+  let actual = p[serie][i];
+  if (anyo === datos.meta.ruptura) actual = p[serie === "q" ? "qa" : "va"] ?? null;
+  const previo = p[serie][i - 1];
+  if (actual == null || previo == null || previo === 0) return null;
+  return (actual / previo - 1) * 100;
+}
+function pct(x) {
+  if (x == null) return '<span class="nulo">—</span>';
+  if (Math.abs(x) < 0.05) x = 0;  // que no salga "▼ 0,0 %"
+  const clase = x > 0 ? "sube" : x < 0 ? "baja" : "nulo";
+  const flecha = x > 0 ? "▲" : x < 0 ? "▼" : "";
+  return `<span class="${clase}">${flecha} ${fmtPct.format(x)} %</span>`;
+}
+
+async function cargar(forzar) {
+  const boton = $("refrescar");
+  boton.disabled = true;
+  $("estado").textContent = "Cargando datos…";
+  try {
+    const url = forzar ? `${URL_DATOS}?t=${Date.now()}` : URL_DATOS;
+    const resp = await fetch(url, { cache: forzar ? "no-store" : "default" });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    datos = await resp.json();
+    for (const p of datos.productos) {
+      p._busca = sinTildes(`${p.n} ${p.o.join(" ")} ${p.c} ${datos.sectores[p.s]?.n ?? ""}`);
+    }
+    prepararFiltros();
+    pintar();
+  } catch (err) {
+    $("estado").textContent = "No se han podido cargar los datos (" + err.message + "). " +
+      "Si has abierto el fichero directamente, sírvelo con «python -m http.server» o publícalo en GitHub Pages.";
+  } finally {
+    boton.disabled = false;
+  }
+}
+
+function prepararFiltros() {
+  const { anyos, ultimo, generado } = datos.meta;
+  const url = new URLSearchParams(location.hash.slice(1));
+  const selAnyo = $("anyo"), selSector = $("sector");
+  const anyoPrevio = Number(selAnyo.value || url.get("anyo")) || ultimo;
+  selAnyo.innerHTML = [...anyos].reverse().map((a) => `<option value="${a}">${a}</option>`).join("");
+  selAnyo.value = anyos.includes(anyoPrevio) ? anyoPrevio : ultimo;
+
+  const sectorPrevio = selSector.value || url.get("sector") || "";
+  selSector.innerHTML = '<option value="">Todos los sectores</option>' +
+    Object.entries(datos.sectores).sort((a, b) => a[1].n.localeCompare(b[1].n, "es"))
+      .map(([id, s]) => `<option value="${id}">${s.e} ${esc(s.n)}</option>`).join("");
+  selSector.value = sectorPrevio;
+  if (!$("buscar").value && url.get("q")) $("buscar").value = url.get("q");
+
+  $("rango").textContent = `de ${anyos[0]} a ${ultimo}`;
+  $("pieFecha").textContent = "Datos descargados del INE el " +
+    new Date(generado).toLocaleString("es-ES", { dateStyle: "long", timeStyle: "short" }) +
+    ". Para actualizarlos: python scripts/actualizar.py";
+}
+
+function pintar() {
+  if (!datos) return;
+  const anyo = Number($("anyo").value);
+  const i = datos.meta.anyos.indexOf(anyo);
+  const sector = $("sector").value;
+  const palabras = sinTildes($("buscar").value.trim()).split(/\s+/).filter(Boolean);
+  const conVacios = $("sinDato").checked;
+
+  vista = [];
+  for (const p of datos.productos) {
+    if (sector && p.s !== sector) continue;
+    if (palabras.length && !palabras.every((w) => p._busca.includes(w))) continue;
+    const q = p.q[i], v = p.v[i];
+    if (!conVacios && q == null && v == null) continue;
+    vista.push({ p, q, v, dq: variacion(p, "q", i), dv: variacion(p, "v", i) });
+  }
+  const { campo, desc } = orden;
+  vista.sort((a, b) => {
+    if (campo === "n") return a.p.n.localeCompare(b.p.n, "es") * (desc ? -1 : 1);
+    const x = a[campo], y = b[campo];
+    if (x == null || y == null) return (x == null) - (y == null);  // sin dato, siempre al final
+    return desc ? y - x : x - y;
+  });
+
+  // Resumen: el total solo compara productos con valor publicado en ambos años.
+  let total = 0, conValor = 0, ahora = 0, antes = 0;
+  for (const f of vista) {
+    if (f.v == null) continue;
+    total += f.v; conValor++;
+    const previo = i > 0 ? f.p.v[i - 1] : null;
+    const actual = anyo === datos.meta.ruptura ? f.p.va ?? null : f.v;
+    if (previo != null && actual != null) { ahora += actual; antes += previo; }
+  }
+  const dTotal = antes > 0 ? (ahora / antes - 1) * 100 : null;
+  $("tarjetas").innerHTML = `
+    <div class="tarjeta"><div class="rot">Productos en ${anyo}</div><div class="num">${fmtNum.format(vista.length)}</div></div>
+    <div class="tarjeta"><div class="rot">Valor publicado (${fmtNum.format(conValor)} productos)</div><div class="num">${euros(total)}</div></div>
+    <div class="tarjeta"><div class="rot">Variación del valor vs ${anyo - 1} (productos comparables)</div><div class="num">${pct(dTotal)}</div></div>`;
+
+  const aviso = $("aviso");
+  aviso.hidden = anyo !== datos.meta.ruptura;
+  if (!aviso.hidden) aviso.textContent = `⚠️ ${anyo}: cambio de encuesta. Las cifras son de la encuesta nueva; ` +
+    "la variación frente al año anterior está calculada con la encuesta antigua (ver nota al pie).";
+
+  $("estado").textContent = vista.length
+    ? `${fmtNum.format(vista.length)} productos · pulsa en uno para ver toda su serie histórica`
+    : "Ningún producto coincide con los filtros.";
+  $("filas").innerHTML = "";
+  mostrados = 0;
+  pintarMas();
+
+  document.querySelectorAll("th button").forEach((b) => {
+    const activo = b.dataset.orden === campo;
+    b.closest("th").setAttribute("aria-sort", activo ? (desc ? "descending" : "ascending") : "none");
+    b.textContent = b.textContent.replace(/ [▲▼]$/, "") + (activo ? (desc ? " ▼" : " ▲") : "");
+  });
+  const estadoUrl = new URLSearchParams();
+  if (anyo !== datos.meta.ultimo) estadoUrl.set("anyo", anyo);
+  if (sector) estadoUrl.set("sector", sector);
+  if ($("buscar").value.trim()) estadoUrl.set("q", $("buscar").value.trim());
+  history.replaceState(null, "", estadoUrl.size ? "#" + estadoUrl : location.pathname + location.search);
+}
+
+function filaHtml(f) {
+  const { p } = f, s = datos.sectores[p.s];
+  return `<tr class="prod" data-c="${p.c}" tabindex="0">
+    <td class="emoji">${p.e}</td>
+    <td><div class="nombre">${esc(p.n)}</div>
+        <div class="meta">${s ? s.e + " " + esc(s.n) + " · " : ""}PRODCOM ${p.c}</div></td>
+    <td class="n">${cantidad(f.q)}${f.q != null && p.u ? `<div class="ud">${esc(p.u)}</div>` : ""}</td>
+    <td class="n">${pct(f.dq)}</td>
+    <td class="n">${euros(f.v)}</td>
+    <td class="n">${pct(f.dv)}</td></tr>` + (abierto === p.c ? detalleHtml(p) : "");
+}
+
+function detalleHtml(p) {
+  const { anyos, ruptura } = datos.meta;
+  const maximo = Math.max(1, ...p.v.map((x) => x ?? 0));
+  const s = datos.sectores[p.s];
+  let filas = "";
+  for (let i = anyos.length - 1; i >= 0; i--) {
+    if (p.q[i] == null && p.v[i] == null) continue;
+    const ancho = Math.round(((p.v[i] ?? 0) / maximo) * 140);
+    filas += `<tr><td>${anyos[i]}${anyos[i] === ruptura ? " ⚠️" : ""}</td>
+      <td class="n">${cantidad(p.q[i])}</td><td class="n">${pct(variacion(p, "q", i))}</td>
+      <td class="n">${euros(p.v[i])}</td><td class="n">${pct(variacion(p, "v", i))}</td>
+      <td><span class="barra" style="width:${ancho}px"></span></td></tr>`;
+  }
+  return `<tr class="detalle"><td></td><td colspan="5">
+    <div class="meta"><strong>Denominación del INE:</strong> ${esc(p.o.join(" › "))}<br>
+      <strong>Sector:</strong> ${s ? esc(s.o) + " (CNAE " + esc(s.cnae) + ")" : "—"}
+      ${p.u ? " · <strong>Unidad:</strong> " + esc(p.u) : " · solo se publica el valor"}</div>
+    <table><thead><tr><th>Año</th><th class="n">Cantidad</th><th class="n">%</th><th class="n">Valor</th><th class="n">%</th><th>Valor (barra)</th></tr></thead>
+    <tbody>${filas}</tbody></table></td></tr>`;
+}
+
+function pintarMas() {
+  const trozo = vista.slice(mostrados, mostrados + PAGINA);
+  $("filas").insertAdjacentHTML("beforeend", trozo.map(filaHtml).join(""));
+  mostrados += trozo.length;
+  const quedan = vista.length - mostrados;
+  $("mas").hidden = quedan <= 0;
+  $("mas").textContent = `Mostrar ${Math.min(PAGINA, quedan)} más (quedan ${fmtNum.format(quedan)})`;
+}
+
+function alternarDetalle(tr) {
+  const codigo = tr.dataset.c;
+  const siguiente = tr.nextElementSibling;
+  document.querySelectorAll("tr.detalle").forEach((d) => d.remove());
+  if (abierto === codigo && siguiente?.classList.contains("detalle")) { abierto = null; return; }
+  abierto = codigo;
+  tr.insertAdjacentHTML("afterend", detalleHtml(datos.productos.find((p) => p.c === codigo)));
+}
+
+function descargarCsv() {
+  if (!datos) return;
+  const anyo = $("anyo").value;
+  const celda = (x) => (x == null ? "" : `"${String(x).replace(/"/g, '""')}"`);
+  const dec = (x) => (x == null ? "" : x.toFixed(1).replace(".", ","));
+  const lineas = [["anyo", "prodcom", "producto", "denominacion_ine", "sector", "unidad", "cantidad",
+                   "var_cantidad_pct", "valor_euros", "var_valor_pct"].join(";")];
+  for (const f of vista) {
+    lineas.push([anyo, f.p.c, celda(f.p.n), celda(f.p.o.join(" > ")), celda(datos.sectores[f.p.s]?.n),
+      celda(f.p.u), f.q ?? "", dec(f.dq), f.v == null ? "" : f.v * 1000, dec(f.dv)].join(";"));
+  }
+  const enlace = document.createElement("a");
+  enlace.href = URL.createObjectURL(new Blob(["﻿" + lineas.join("\r\n")], { type: "text/csv;charset=utf-8" }));
+  enlace.download = `produccion-industrial-${anyo}.csv`;
+  enlace.click();
+  URL.revokeObjectURL(enlace.href);
+}
+
+// --- Actualización desde el INE mediante GitHub Actions ----------------------
+const WORKFLOW = "actualizar.yml";
+const CLAVE_TOKEN = "anprod.github.token";
+const pausa = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** En usuario.github.io/repositorio deduce de la URL a qué repositorio pertenece la web. */
+function repositorio() {
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/);
+  if (!m) return null;
+  const carpeta = location.pathname.split("/").filter(Boolean)[0];
+  return { dueno: m[1], nombre: carpeta && !carpeta.includes(".") ? carpeta : location.hostname };
+}
+
+async function github(ruta, token, opciones = {}) {
+  const repo = repositorio();
+  const resp = await fetch(`https://api.github.com/repos/${repo.dueno}/${repo.nombre}${ruta}`, {
+    ...opciones,
+    headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${token}`,
+               "X-GitHub-Api-Version": "2022-11-28" },
+  });
+  if (resp.status === 401) throw new Error("GitHub rechaza el token (caducado o mal copiado)");
+  if (resp.status === 403 || resp.status === 404) throw new Error("el token no tiene permiso «Actions: Read and write» sobre este repositorio");
+  if (!resp.ok) throw new Error(`GitHub respondió ${resp.status}`);
+  return resp.status === 204 ? null : resp.json();
+}
+
+function abrirDialogo() {
+  const repo = repositorio();
+  $("dlgLocal").hidden = !!repo;
+  $("dlgPages").hidden = !repo;
+  $("dlgLanzar").hidden = !repo;
+  $("dlgEstado").textContent = "";
+  if (repo) {
+    $("dlgEnlace").href = `https://github.com/${repo.dueno}/${repo.nombre}/actions/workflows/${WORKFLOW}`;
+    const guardado = localStorage.getItem(CLAVE_TOKEN) || "";
+    $("dlgToken").value = guardado;
+    $("dlgOlvidar").hidden = !guardado;
+  }
+  $("dlg").showModal();
+}
+
+async function lanzarActualizacion() {
+  const token = $("dlgToken").value.trim();
+  const estado = (texto) => { $("dlgEstado").textContent = texto; };
+  if (!token) { estado("Pega un token o usa la opción 1."); return; }
+  const boton = $("dlgLanzar");
+  boton.disabled = true;
+  try {
+    estado("Conectando con GitHub…");
+    const { default_branch: rama } = await github("", token);
+    const inicio = Date.now() - 60000;  // margen por si los relojes no coinciden
+    await github(`/actions/workflows/${WORKFLOW}/dispatches`, token,
+                 { method: "POST", body: JSON.stringify({ ref: rama }) });
+    localStorage.setItem(CLAVE_TOKEN, token);
+    $("dlgOlvidar").hidden = false;
+
+    // Seguir el trabajo hasta que termine (puede cerrarse el aviso: sigue en GitHub).
+    let ejecucion = null;
+    for (let i = 0; i < 120; i++) {
+      await pausa(i < 3 ? 5000 : 20000);
+      const { workflow_runs: lista } = await github(
+        `/actions/workflows/${WORKFLOW}/runs?event=workflow_dispatch&per_page=5`, token);
+      ejecucion = lista.find((r) => new Date(r.created_at).getTime() >= inicio);
+      if (!ejecucion) { estado("Trabajo en cola…"); continue; }
+      if (ejecucion.status === "completed") break;
+      const minutos = Math.round((Date.now() - new Date(ejecucion.created_at).getTime()) / 60000);
+      estado(`Descargando del INE… ${minutos} min (suele tardar unos 15). Puedes cerrar este aviso.`);
+    }
+    if (!ejecucion || ejecucion.status !== "completed") throw new Error("el trabajo tarda más de lo normal; míralo en GitHub");
+    if (ejecucion.conclusion !== "success") throw new Error(`el trabajo terminó con «${ejecucion.conclusion}»; revisa el registro en GitHub`);
+
+    // GitHub Pages tarda un poco en publicar el commit con los datos nuevos.
+    const anterior = datos?.meta.generado;
+    for (let i = 0; i < 20; i++) {
+      estado("Trabajo terminado. Esperando a que GitHub Pages publique los datos…");
+      await cargar(true);
+      if (datos?.meta.generado !== anterior) { estado("✅ Datos actualizados."); return; }
+      await pausa(15000);
+    }
+    estado("✅ Trabajo terminado sin datos nuevos: el INE no ha publicado cambios.");
+  } catch (err) {
+    estado("⚠️ No se pudo actualizar: " + err.message + ".");
+  } finally {
+    boton.disabled = false;
+  }
+}
+
+$("actualizar").addEventListener("click", abrirDialogo);
+$("dlgCerrar").addEventListener("click", () => $("dlg").close());
+$("dlgLanzar").addEventListener("click", lanzarActualizacion);
+$("dlgOlvidar").addEventListener("click", () => {
+  localStorage.removeItem(CLAVE_TOKEN);
+  $("dlgToken").value = "";
+  $("dlgOlvidar").hidden = true;
+  $("dlgEstado").textContent = "Token borrado de este navegador.";
+});
+
+let espera;
+$("buscar").addEventListener("input", () => { clearTimeout(espera); espera = setTimeout(pintar, 150); });
+for (const id of ["anyo", "sector", "sinDato"]) $(id).addEventListener("change", pintar);
+$("refrescar").addEventListener("click", () => cargar(true));
+$("csv").addEventListener("click", descargarCsv);
+$("mas").addEventListener("click", pintarMas);
+document.querySelector("thead").addEventListener("click", (ev) => {
+  const b = ev.target.closest("button[data-orden]");
+  if (!b) return;
+  const campo = b.dataset.orden;
+  orden = { campo, desc: orden.campo === campo ? !orden.desc : campo !== "n" };
+  pintar();
+});
+$("filas").addEventListener("click", (ev) => {
+  const tr = ev.target.closest("tr.prod");
+  if (tr) alternarDetalle(tr);
+});
+$("filas").addEventListener("keydown", (ev) => {
+  if (ev.key !== "Enter" && ev.key !== " ") return;
+  const tr = ev.target.closest("tr.prod");
+  if (tr) { ev.preventDefault(); alternarDetalle(tr); }
+});
+cargar(false);
+</script>
+</body>
+</html>
