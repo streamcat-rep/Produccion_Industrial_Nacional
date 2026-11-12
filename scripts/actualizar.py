@@ -54,9 +54,14 @@ def guardar_crudo(ed: ine_eip.Edicion, filas: list[ine_eip.Fila]) -> None:
         {k: v for k, v in dataclasses.asdict(f).items() if k not in ("anyo", "serie")}
         for f in filas
     ]
-    # mtime=0: el fichero no cambia si los datos no cambian (diffs de git limpios)
-    with open(ruta_crudo(ed), "wb") as crudo, gzip.GzipFile(fileobj=crudo, mode="wb", mtime=0) as gz:
-        gz.write(json.dumps(campos, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+    contenido = json.dumps(campos, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    destino = ruta_crudo(ed)
+    # Si el INE no ha cambiado nada no se reescribe el fichero: el mismo contenido
+    # comprimido en otra máquina da bytes distintos y git lo vería como un cambio.
+    if destino.exists() and gzip.decompress(destino.read_bytes()) == contenido:
+        return
+    with open(destino, "wb") as crudo, gzip.GzipFile(fileobj=crudo, mode="wb", mtime=0) as gz:
+        gz.write(contenido)
 
 
 def leer_crudo(ed: ine_eip.Edicion) -> list[ine_eip.Fila]:
