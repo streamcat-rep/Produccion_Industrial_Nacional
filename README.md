@@ -13,6 +13,7 @@ fabricada y valor económico— desde 2008, a partir de la
 | `data/crudo/` | Copia comprimida de lo descargado del INE, un fichero por año. |
 | `scripts/actualizar.py` | Descarga del INE y regenera `data/`. |
 | `scripts/ine_eip.py` | Cliente de la aplicación de consulta del INE. |
+| `scripts/ine_macro.py` | PIB y asalariados del INE, para la productividad. |
 | `scripts/nombres.py` | Nombres claros, emojis y unidades. **Edítalo para renombrar.** |
 | `.github/workflows/actualizar.yml` | Actualización automática en GitHub. |
 | `worker/` | Intermediario en Cloudflare que lanza la actualización desde la web. |
@@ -73,6 +74,28 @@ saltándose la caché del navegador.
   antigua, que es la comparable.
 - Los productos se identifican por su código PRODCOM de 10 dígitos. La lista de
   productos cambia con los años, así que no todos tienen la serie completa.
+
+## La vista «Trabajo necesario»
+
+Segunda pestaña de la web. Añade a cada producto cuánto trabajo representa:
+
+| Columna | Cálculo |
+| --- | --- |
+| Productividad media | PIB anual ÷ total de asalariados (€ por asalariado y año) |
+| Productividad de la rama | Valor añadido de la rama ÷ asalariados de la rama |
+| Años-persona media / rama | Valor de la producción del producto ÷ productividad |
+| TTSN media / rama | (Salario ÷ productividad) × jornada anual, en horas |
+
+- El PIB es trimestral ([tabla 67821](https://ine.es/jaxiT3/Tabla.htm?t=67821&L=0)) y se
+  anualiza sumando los cuatro trimestres; un año incompleto no se usa. Los
+  asalariados son la media anual de la EPA ([tabla 65988](https://ine.es/jaxiT3/Tabla.htm?t=65988&L=0)).
+- La tabla del PIB solo desglosa la industria en dos ramas: **manufacturera**
+  (todos los sectores salvo el 79) y **extractivas, energía y agua** (sector 79,
+  electricidad y gas), que se obtiene restando la manufacturera al total de industria.
+- El salario (2.500 € por defecto) y la jornada anual (1.826 h, el máximo legal
+  de 40 h semanales) se pueden cambiar en la propia web.
+- El TTSN depende solo de la productividad, así que es el mismo para todos los
+  productos de una rama en un año.
 
 ## El intermediario de Cloudflare
 

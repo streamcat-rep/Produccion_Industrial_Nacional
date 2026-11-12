@@ -67,6 +67,14 @@
   .detalle th, .detalle td { padding: 4px 10px; background: transparent; }
   .barra { display: inline-block; height: 8px; background: var(--acento); border-radius: 2px; vertical-align: middle; }
   .mas { display: block; margin: 14px auto; }
+  .pestanas { display: flex; gap: 6px; margin-top: 16px; border-bottom: 1px solid var(--borde); }
+  .pestanas button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: none;
+                     color: var(--suave); font-weight: 600; padding: 8px 12px; }
+  .pestanas button[aria-current="page"] { color: var(--texto); border-bottom-color: var(--acento); }
+  .parametros { position: static; margin: 0 0 12px; padding: 0; }
+  .parametros input { font: inherit; color: var(--texto); background: var(--panel); border: 1px solid var(--borde);
+                      border-radius: 8px; padding: 8px 10px; min-height: 38px; width: 150px; }
+  .parametros .meta { margin: 0 0 9px; flex: 1 1 260px; }
   dialog { background: var(--panel); color: var(--texto); border: 1px solid var(--borde); border-radius: 12px;
            max-width: 560px; padding: 20px 22px; }
   dialog::backdrop { background: rgba(0, 0, 0, .45); }
@@ -85,6 +93,10 @@
   <h1>🏭 Producción industrial de España, producto a producto</h1>
   <p class="sub">Cantidad fabricada y valor económico de cada producto industrial, <span id="rango">desde 2008</span>.
     Fuente: <a href="https://www.ine.es/dyngs/INEbase/operacion.htm?c=Estadistica_C&cid=1254736149053&menu=resultados&idp=1254735576715" rel="noopener">INE, Encuesta Industrial Anual de Productos</a>.</p>
+  <nav class="pestanas" aria-label="Vistas">
+    <button type="button" data-modo="produccion" aria-current="page">📦 Producción</button>
+    <button type="button" data-modo="trabajo">⏱️ Trabajo necesario</button>
+  </nav>
 </header>
 
 <main>
@@ -118,22 +130,23 @@
     </div>
   </dialog>
 
+  <div class="filtros parametros" id="parametros" hidden>
+    <label>Salario a producir (€)
+      <input id="salario" type="number" min="1" step="50" value="2500">
+    </label>
+    <label>Jornada anual (horas)
+      <input id="jornada" type="number" min="1" step="1" value="1826">
+    </label>
+    <p class="meta">TTSN = horas de trabajo necesarias para producir el valor de ese salario, según la productividad.</p>
+  </div>
+
   <div class="tarjetas" id="tarjetas"></div>
   <div class="aviso" id="aviso" hidden></div>
   <p class="estado" id="estado" role="status">Cargando datos…</p>
 
   <div class="tabla-caja">
     <table>
-      <thead>
-        <tr>
-          <th></th>
-          <th><button data-orden="n">Producto</button></th>
-          <th class="n"><button data-orden="q">Unidades producidas</button></th>
-          <th class="n"><button data-orden="dq" title="Variación de la cantidad respecto al año anterior">% vs año anterior</button></th>
-          <th class="n"><button data-orden="v">Valor económico</button></th>
-          <th class="n"><button data-orden="dv" title="Variación del valor respecto al año anterior">% vs año anterior</button></th>
-        </tr>
-      </thead>
+      <thead id="cabecera"></thead>
       <tbody id="filas"></tbody>
     </table>
   </div>
@@ -145,6 +158,8 @@
     <li><strong>Valor</strong>: valor de la producción, en euros corrientes (sin descontar inflación). El INE lo publica en miles de euros.</li>
     <li><strong>«—»</strong>: dato no publicado (secreto estadístico o no disponible). Un <strong>0</strong> significa que ninguna empresa de la muestra lo fabricó.</li>
     <li><strong>2021 ⚠️</strong>: ese año cambió la encuesta (Reglamento UE 2019/2152: solo cuenta lo fabricado en territorio español). Se muestra el dato nuevo de 2021; su variación frente a 2020 se calcula con la encuesta antigua, que sí es comparable.</li>
+    <li><strong>Productividad media</strong>: PIB anual (suma de los cuatro trimestres) entre el total de asalariados. <strong>Productividad de la rama</strong>: valor añadido de la rama entre sus asalariados. El INE solo desglosa la industria en dos ramas: manufacturera, y extractivas, energía y agua.</li>
+    <li><strong>Años-persona</strong>: valor de la producción del producto entre la productividad (media o de su rama). <strong>TTSN</strong>: horas de trabajo necesarias para producir el valor del salario indicado; pasa la productividad anual a horas con la jornada anual indicada (1.826 h es el máximo legal de 40 h semanales).</li>
     <li id="pieFecha"></li>
   </ul>
 </footer>
@@ -163,6 +178,36 @@ let vista = [];        // productos filtrados y ordenados, con sus cifras del a�
 let mostrados = 0;
 let orden = { campo: "v", desc: true };
 let abierto = null;    // código del producto con el histórico desplegado
+let modo = "produccion";  // vista activa: "produccion" o "trabajo"
+
+// Columnas de cada vista: [campo por el que ordena, título, explicación].
+const COLUMNAS = {
+  produccion: [
+    ["q", "Unidades producidas", ""],
+    ["dq", "% vs año anterior", "Variación de la cantidad respecto al año anterior"],
+    ["v", "Valor económico", ""],
+    ["dv", "% vs año anterior", "Variación del valor respecto al año anterior"],
+  ],
+  trabajo: [
+    ["q", "Uds", "Unidades producidas"],
+    ["v", "Valor económico", ""],
+    ["apm", "Años-persona media", "Valor de la producción entre la productividad media de la economía"],
+    ["apr", "Años-persona rama", "Valor de la producción entre la productividad de su rama"],
+    ["tm", "TTSN media", "Horas de trabajo para producir el salario indicado, con la productividad media"],
+    ["tr", "TTSN rama", "Horas de trabajo para producir el salario indicado, con la productividad de su rama"],
+  ],
+};
+
+/** Productividad en euros por asalariado y año: media de la economía y de cada rama. */
+function productividad(i) {
+  const m = datos.macro;
+  const cociente = (millones, miles) => (millones != null && miles ? (millones * 1000) / miles : null);
+  const ramas = {};
+  for (const [clave, r] of Object.entries(m?.ramas ?? {})) ramas[clave] = cociente(r.vab[i], r.asalariados[i]);
+  return { media: m ? cociente(m.pib[i], m.asalariados[i]) : null, ramas };
+}
+const aniosPersona = (x) => (x == null ? "—" : x >= 100 ? fmtNum.format(x) : fmtDec.format(x));
+const horas = (x) => (x == null ? "—" : fmtDec.format(x) + " h");
 
 const sinTildes = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -231,6 +276,7 @@ function prepararFiltros() {
       .map(([id, s]) => `<option value="${id}">${s.e} ${esc(s.n)}</option>`).join("");
   selSector.value = sectorPrevio;
   if (!$("buscar").value && url.get("q")) $("buscar").value = url.get("q");
+  if (COLUMNAS[url.get("vista")]) modo = url.get("vista");
 
   $("rango").textContent = `de ${anyos[0]} a ${ultimo}`;
   $("pieFecha").textContent = "Datos descargados del INE el " +
@@ -246,14 +292,27 @@ function pintar() {
   const palabras = sinTildes($("buscar").value.trim()).split(/\s+/).filter(Boolean);
   const conVacios = $("sinDato").checked;
 
+  const prod = productividad(i);
+  const salario = Number($("salario").value) || 0, jornada = Number($("jornada").value) || 0;
+  // Horas para producir el salario: (salario / productividad anual) años × jornada anual.
+  const ttsn = (productiv) => (productiv && salario && jornada ? (salario / productiv) * jornada : null);
+  const tm = ttsn(prod.media);
+
   vista = [];
   for (const p of datos.productos) {
     if (sector && p.s !== sector) continue;
     if (palabras.length && !palabras.every((w) => p._busca.includes(w))) continue;
     const q = p.q[i], v = p.v[i];
     if (!conVacios && q == null && v == null) continue;
-    vista.push({ p, q, v, dq: variacion(p, "q", i), dv: variacion(p, "v", i) });
+    const deRama = prod.ramas[datos.sectores[p.s]?.r] ?? null;
+    vista.push({
+      p, q, v, dq: variacion(p, "q", i), dv: variacion(p, "v", i),
+      apm: v != null && prod.media ? (v * 1000) / prod.media : null,   // v viene en miles de euros
+      apr: v != null && deRama ? (v * 1000) / deRama : null,
+      tm, tr: ttsn(deRama),
+    });
   }
+  if (!COLUMNAS[modo].some(([c]) => c === orden.campo) && orden.campo !== "n") orden = { campo: "v", desc: true };
   const { campo, desc } = orden;
   vista.sort((a, b) => {
     if (campo === "n") return a.p.n.localeCompare(b.p.n, "es") * (desc ? -1 : 1);
@@ -272,10 +331,23 @@ function pintar() {
     if (previo != null && actual != null) { ahora += actual; antes += previo; }
   }
   const dTotal = antes > 0 ? (ahora / antes - 1) * 100 : null;
-  $("tarjetas").innerHTML = `
-    <div class="tarjeta"><div class="rot">Productos en ${anyo}</div><div class="num">${fmtNum.format(vista.length)}</div></div>
-    <div class="tarjeta"><div class="rot">Valor publicado (${fmtNum.format(conValor)} productos)</div><div class="num">${euros(total)}</div></div>
-    <div class="tarjeta"><div class="rot">Variación del valor vs ${anyo - 1} (productos comparables)</div><div class="num">${pct(dTotal)}</div></div>`;
+  const tarjeta = (rotulo, numero) => `<div class="tarjeta"><div class="rot">${rotulo}</div><div class="num">${numero}</div></div>`;
+  const porAsalariado = (x) => (x == null ? "—" : fmtNum.format(x) + " €");
+  $("parametros").hidden = modo !== "trabajo";
+  if (modo === "trabajo") {
+    const sumaApm = vista.reduce((s, f) => s + (f.apm ?? 0), 0);
+    $("tarjetas").innerHTML =
+      tarjeta(`Productividad media ${anyo} (PIB por asalariado)`, porAsalariado(prod.media)) +
+      Object.entries(datos.macro?.ramas ?? {}).map(([clave, r]) =>
+        tarjeta(`Productividad · ${esc(r.n)}`, porAsalariado(prod.ramas[clave]))).join("") +
+      tarjeta("TTSN con la productividad media", horas(tm)) +
+      tarjeta(`Años-persona (media) de los ${fmtNum.format(conValor)} productos`, aniosPersona(sumaApm));
+  } else {
+    $("tarjetas").innerHTML =
+      tarjeta(`Productos en ${anyo}`, fmtNum.format(vista.length)) +
+      tarjeta(`Valor publicado (${fmtNum.format(conValor)} productos)`, euros(total)) +
+      tarjeta(`Variación del valor vs ${anyo - 1} (productos comparables)`, pct(dTotal));
+  }
 
   const aviso = $("aviso");
   aviso.hidden = anyo !== datos.meta.ruptura;
@@ -289,12 +361,17 @@ function pintar() {
   mostrados = 0;
   pintarMas();
 
-  document.querySelectorAll("th button").forEach((b) => {
-    const activo = b.dataset.orden === campo;
-    b.closest("th").setAttribute("aria-sort", activo ? (desc ? "descending" : "ascending") : "none");
-    b.textContent = b.textContent.replace(/ [▲▼]$/, "") + (activo ? (desc ? " ▼" : " ▲") : "");
-  });
+  const flecha = (c) => (c === campo ? (desc ? " ▼" : " ▲") : "");
+  const sentido = (c) => (c === campo ? (desc ? "descending" : "ascending") : "none");
+  $("cabecera").innerHTML = `<tr><th></th>
+    <th aria-sort="${sentido("n")}"><button data-orden="n">Producto${flecha("n")}</button></th>` +
+    COLUMNAS[modo].map(([c, titulo, ayuda]) =>
+      `<th class="n" aria-sort="${sentido(c)}"><button data-orden="${c}" title="${esc(ayuda)}">${titulo}${flecha(c)}</button></th>`
+    ).join("") + "</tr>";
+  document.querySelectorAll(".pestanas button").forEach((b) =>
+    b.dataset.modo === modo ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   const estadoUrl = new URLSearchParams();
+  if (modo !== "produccion") estadoUrl.set("vista", modo);
   if (anyo !== datos.meta.ultimo) estadoUrl.set("anyo", anyo);
   if (sector) estadoUrl.set("sector", sector);
   if ($("buscar").value.trim()) estadoUrl.set("q", $("buscar").value.trim());
@@ -307,30 +384,52 @@ function filaHtml(f) {
     <td class="emoji">${p.e}</td>
     <td><div class="nombre">${esc(p.n)}</div>
         <div class="meta">${s ? s.e + " " + esc(s.n) + " · " : ""}PRODCOM ${p.c}</div></td>
-    <td class="n">${cantidad(f.q)}${f.q != null && p.u ? `<div class="ud">${esc(p.u)}</div>` : ""}</td>
-    <td class="n">${pct(f.dq)}</td>
-    <td class="n">${euros(f.v)}</td>
-    <td class="n">${pct(f.dv)}</td></tr>` + (abierto === p.c ? detalleHtml(p) : "");
+    <td class="n">${cantidad(f.q)}${f.q != null && p.u ? `<div class="ud">${esc(p.u)}</div>` : ""}</td>` +
+    (modo === "trabajo"
+      ? `<td class="n">${euros(f.v)}</td>
+         <td class="n">${aniosPersona(f.apm)}</td><td class="n">${aniosPersona(f.apr)}</td>
+         <td class="n">${horas(f.tm)}</td><td class="n">${horas(f.tr)}</td>`
+      : `<td class="n">${pct(f.dq)}</td>
+         <td class="n">${euros(f.v)}</td>
+         <td class="n">${pct(f.dv)}</td>`) +
+    "</tr>" + (abierto === p.c ? detalleHtml(p) : "");
 }
 
 function detalleHtml(p) {
   const { anyos, ruptura } = datos.meta;
   const maximo = Math.max(1, ...p.v.map((x) => x ?? 0));
   const s = datos.sectores[p.s];
+  const trabajo = modo === "trabajo";
+  const rama = datos.macro?.ramas?.[s?.r];
   let filas = "";
   for (let i = anyos.length - 1; i >= 0; i--) {
     if (p.q[i] == null && p.v[i] == null) continue;
     const ancho = Math.round(((p.v[i] ?? 0) / maximo) * 140);
-    filas += `<tr><td>${anyos[i]}${anyos[i] === ruptura ? " ⚠️" : ""}</td>
-      <td class="n">${cantidad(p.q[i])}</td><td class="n">${pct(variacion(p, "q", i))}</td>
-      <td class="n">${euros(p.v[i])}</td><td class="n">${pct(variacion(p, "v", i))}</td>
-      <td><span class="barra" style="width:${ancho}px"></span></td></tr>`;
+    const marca = `<td>${anyos[i]}${anyos[i] === ruptura ? " ⚠️" : ""}</td>`;
+    if (trabajo) {
+      const prod = productividad(i), deRama = prod.ramas[s?.r] ?? null, v = p.v[i];
+      filas += `<tr>${marca}<td class="n">${euros(v)}</td>
+        <td class="n">${prod.media ? fmtNum.format(prod.media) + " €" : "—"}</td>
+        <td class="n">${aniosPersona(v != null && prod.media ? (v * 1000) / prod.media : null)}</td>
+        <td class="n">${deRama ? fmtNum.format(deRama) + " €" : "—"}</td>
+        <td class="n">${aniosPersona(v != null && deRama ? (v * 1000) / deRama : null)}</td></tr>`;
+    } else {
+      filas += `<tr>${marca}
+        <td class="n">${cantidad(p.q[i])}</td><td class="n">${pct(variacion(p, "q", i))}</td>
+        <td class="n">${euros(p.v[i])}</td><td class="n">${pct(variacion(p, "v", i))}</td>
+        <td><span class="barra" style="width:${ancho}px"></span></td></tr>`;
+    }
   }
-  return `<tr class="detalle"><td></td><td colspan="5">
+  const cabecera = trabajo
+    ? `<th>Año</th><th class="n">Valor</th><th class="n">Productividad media</th><th class="n">Años-persona media</th>
+       <th class="n">Productividad rama</th><th class="n">Años-persona rama</th>`
+    : `<th>Año</th><th class="n">Cantidad</th><th class="n">%</th><th class="n">Valor</th><th class="n">%</th><th>Valor (barra)</th>`;
+  return `<tr class="detalle"><td></td><td colspan="${COLUMNAS[modo].length + 1}">
     <div class="meta"><strong>Denominación del INE:</strong> ${esc(p.o.join(" › "))}<br>
       <strong>Sector:</strong> ${s ? esc(s.o) + " (CNAE " + esc(s.cnae) + ")" : "—"}
+      ${trabajo && rama ? " · <strong>Rama:</strong> " + esc(rama.n) : ""}
       ${p.u ? " · <strong>Unidad:</strong> " + esc(p.u) : " · solo se publica el valor"}</div>
-    <table><thead><tr><th>Año</th><th class="n">Cantidad</th><th class="n">%</th><th class="n">Valor</th><th class="n">%</th><th>Valor (barra)</th></tr></thead>
+    <table><thead><tr>${cabecera}</tr></thead>
     <tbody>${filas}</tbody></table></td></tr>`;
 }
 
@@ -357,15 +456,20 @@ function descargarCsv() {
   const anyo = $("anyo").value;
   const celda = (x) => (x == null ? "" : `"${String(x).replace(/"/g, '""')}"`);
   const dec = (x) => (x == null ? "" : x.toFixed(1).replace(".", ","));
+  const trabajo = modo === "trabajo";
+  const propias = trabajo
+    ? ["anios_persona_media", "anios_persona_rama", "ttsn_media_horas", "ttsn_rama_horas"]
+    : ["var_cantidad_pct", "var_valor_pct"];
   const lineas = [["anyo", "prodcom", "producto", "denominacion_ine", "sector", "unidad", "cantidad",
-                   "var_cantidad_pct", "valor_euros", "var_valor_pct"].join(";")];
+                   "valor_euros", ...propias].join(";")];
   for (const f of vista) {
     lineas.push([anyo, f.p.c, celda(f.p.n), celda(f.p.o.join(" > ")), celda(datos.sectores[f.p.s]?.n),
-      celda(f.p.u), f.q ?? "", dec(f.dq), f.v == null ? "" : f.v * 1000, dec(f.dv)].join(";"));
+      celda(f.p.u), f.q ?? "", f.v == null ? "" : f.v * 1000,
+      ...(trabajo ? [dec(f.apm), dec(f.apr), dec(f.tm), dec(f.tr)] : [dec(f.dq), dec(f.dv)])].join(";"));
   }
   const enlace = document.createElement("a");
   enlace.href = URL.createObjectURL(new Blob(["﻿" + lineas.join("\r\n")], { type: "text/csv;charset=utf-8" }));
-  enlace.download = `produccion-industrial-${anyo}.csv`;
+  enlace.download = `${trabajo ? "trabajo-necesario" : "produccion-industrial"}-${anyo}.csv`;
   enlace.click();
   URL.revokeObjectURL(enlace.href);
 }
@@ -469,6 +573,13 @@ $("dlgLanzar").addEventListener("click", lanzarActualizacion);
 let espera;
 $("buscar").addEventListener("input", () => { clearTimeout(espera); espera = setTimeout(pintar, 150); });
 for (const id of ["anyo", "sector", "sinDato"]) $(id).addEventListener("change", pintar);
+for (const id of ["salario", "jornada"]) $(id).addEventListener("input", pintar);
+document.querySelector(".pestanas").addEventListener("click", (ev) => {
+  const b = ev.target.closest("button[data-modo]");
+  if (!b || b.dataset.modo === modo) return;
+  modo = b.dataset.modo;
+  pintar();
+});
 $("refrescar").addEventListener("click", () => cargar(true));
 $("csv").addEventListener("click", descargarCsv);
 $("mas").addEventListener("click", pintarMas);

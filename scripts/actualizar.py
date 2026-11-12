@@ -24,11 +24,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import ine_eip
+import ine_macro
 from nombres import SECTORES, emoji_de, nombre_de, unidad_clara
 
 RAIZ = Path(__file__).resolve().parent.parent
 SALIDA = RAIZ / "data" / "produccion.json"
 CRUDO = RAIZ / "data" / "crudo"
+CRUDO_MACRO = CRUDO / "macro.json"  # PIB y asalariados
 HILOS = 6
 MIN_PRODUCTOS = 1500  # un año con menos productos indica una descarga rota
 
@@ -90,7 +92,25 @@ def entero_si_puede(x: float | None):
     return int(x) if float(x).is_integer() else round(x, 3)
 
 
-def construir(filas: list[ine_eip.Fila]) -> dict:
+def alinear_macro(macro: dict, anyos: list[int]) -> dict:
+    """Recoloca el PIB y los asalariados sobre los mismos años que los productos."""
+    pos = {a: i for i, a in enumerate(macro["anyos"])}
+
+    def serie(valores: list) -> list:
+        return [valores[pos[a]] if a in pos else None for a in anyos]
+
+    return {
+        "fuente": "INE. Contabilidad Nacional Trimestral (tabla 67821) y EPA (tabla 65988)",
+        "pib": serie(macro["pib"]),  # millones de euros
+        "asalariados": serie(macro["asalariados"]),  # miles de personas
+        "ramas": {
+            clave: {"n": r["n"], "vab": serie(r["vab"]), "asalariados": serie(r["asalariados"])}
+            for clave, r in macro["ramas"].items()
+        },
+    }
+
+
+def construir(filas: list[ine_eip.Fila], macro: dict) -> dict:
     anyos = sorted({f.anyo for f in filas})
     pos = {a: i for i, a in enumerate(anyos)}
     anyos_nueva = [f.anyo for f in filas if f.serie == ine_eip.SERIE_NUEVA]
@@ -139,7 +159,9 @@ def construir(filas: list[ine_eip.Fila]) -> dict:
 
         emoji, corto = SECTORES.get(ref.sector, ("🏭", ref.sector_nombre))
         sectores.setdefault(
-            ref.sector, {"n": corto, "o": ref.sector_nombre, "e": emoji, "cnae": ref.cnae}
+            ref.sector,
+            {"n": corto, "o": ref.sector_nombre, "e": emoji, "cnae": ref.cnae,
+             "r": ine_macro.rama_de(ref.cnae)},
         )
 
     productos.sort(key=lambda p: p["c"])
@@ -153,6 +175,7 @@ def construir(filas: list[ine_eip.Fila]) -> dict:
             "ruptura": ruptura,
             "unidad_valor": "miles de euros",
         },
+        "macro": alinear_macro(macro, anyos),
         "sectores": dict(sorted(sectores.items())),
         "productos": productos,
     }
@@ -198,8 +221,17 @@ def main() -> int:
                 guardar_crudo(ed, filas)
                 print(f"  ✓ {ed.anyo} ({ed.serie}): {len(filas)} productos  [{time.time() - inicio:.0f} s]")
 
+    if not args.sin_descarga:
+        print("Descargando PIB y asalariados…")
+        macro = ine_macro.descargar()
+        contenido = json.dumps(macro, ensure_ascii=False, indent=1).encode("utf-8")
+        CRUDO.mkdir(parents=True, exist_ok=True)
+        if not CRUDO_MACRO.exists() or CRUDO_MACRO.read_bytes() != contenido:
+            CRUDO_MACRO.write_bytes(contenido)
+    macro = json.loads(CRUDO_MACRO.read_text(encoding="utf-8"))
+
     filas = [f for e in ediciones for f in leer_crudo(e)]
-    datos = construir(filas)
+    datos = construir(filas, macro)
     SALIDA.parent.mkdir(parents=True, exist_ok=True)
     temporal = SALIDA.with_suffix(".tmp")
     temporal.write_text(json.dumps(datos, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
