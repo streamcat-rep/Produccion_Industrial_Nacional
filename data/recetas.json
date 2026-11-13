@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generado": "2026-11-13T12:06:30+00:00"
+  "generado": "2026-11-13T12:16:24+00:00"
  },
  "componentes": {
   "BANDEJA": {
@@ -332,6 +332,46 @@
    "n": "Premezclas (vitaminas y minerales) para piensos",
    "u": "kg",
    "f": 1000
+  },
+  "POLLO_VIVO": {
+   "c": null,
+   "n": "Pollo vivo (granja)",
+   "u": "kg",
+   "f": 1,
+   "granja": "FT5",
+   "precio": "apri_ap_anouta/11510000"
+  },
+  "CERDO_VIVO": {
+   "c": null,
+   "n": "Cerdo vivo (granja)",
+   "u": "kg",
+   "f": 1,
+   "granja": "FT5",
+   "precio": "apri_ap_anouta/11210000"
+  },
+  "VACUNO_VIVO": {
+   "c": null,
+   "n": "Vacuno vivo (granja)",
+   "u": "kg",
+   "f": 1,
+   "granja": "FT4",
+   "precio": "apri_ap_anouta/11110000"
+  },
+  "LECHE_CRUDA": {
+   "c": null,
+   "n": "Leche cruda de vaca (granja)",
+   "u": "kg",
+   "f": 1,
+   "granja": "FT4",
+   "precio": "apri_ap_anouta/12112000"
+  },
+  "CEREAL": {
+   "c": null,
+   "n": "Cereal para pienso: maíz (campo)",
+   "u": "kg",
+   "f": 1,
+   "granja": "FT1",
+   "precio": "apri_ap_crpouta/01500000"
   }
  },
  "cadena": {
@@ -518,11 +558,44 @@
     "nota": "~25 kg de madera por palé"
    }
   ],
+  "POLLO_VIVO": [
+   {
+    "a": "PIENSO_AVES",
+    "x": 1.7,
+    "nota": "~1,7 kg de pienso por kg de pollo vivo"
+   }
+  ],
+  "CERDO_VIVO": [
+   {
+    "a": "PIENSO_CERDOS",
+    "x": 2.6,
+    "nota": "~2,6 kg de pienso por kg de cerdo vivo"
+   }
+  ],
+  "VACUNO_VIVO": [
+   {
+    "a": "PIENSO_RUMIANTES",
+    "x": 4.5,
+    "nota": "~4,5 kg de pienso por kg de vacuno vivo, además del forraje"
+   }
+  ],
+  "LECHE_CRUDA": [
+   {
+    "a": "PIENSO_RUMIANTES",
+    "x": 0.4,
+    "nota": "~0,4 kg de pienso por litro, además del forraje"
+   }
+  ],
   "PIENSO_AVES": [
+   {
+    "a": "CEREAL",
+    "x": 0.6,
+    "nota": "~60 % de cereal"
+   },
    {
     "a": "TORTA_SOJA",
     "x": 0.25,
-    "nota": "~25 % de harina de soja; el cereal no está en la encuesta"
+    "nota": "~25 % de harina de soja"
    },
    {
     "a": "PREMEZCLA",
@@ -532,9 +605,14 @@
   ],
   "PIENSO_CERDOS": [
    {
+    "a": "CEREAL",
+    "x": 0.7,
+    "nota": "~70 % de cereal"
+   },
+   {
     "a": "TORTA_SOJA",
     "x": 0.15,
-    "nota": "~15 % de harina de soja; el cereal no está en la encuesta"
+    "nota": "~15 % de harina de soja"
    },
    {
     "a": "PREMEZCLA",
@@ -544,9 +622,14 @@
   ],
   "PIENSO_RUMIANTES": [
    {
+    "a": "CEREAL",
+    "x": 0.6,
+    "nota": "~60 % de cereal"
+   },
+   {
     "a": "TORTA_SOJA",
     "x": 0.12,
-    "nota": "~12 % de harina de soja; el cereal y el forraje no están en la encuesta"
+    "nota": "~12 % de harina de soja"
    },
    {
     "a": "PREMEZCLA",
@@ -652,6 +735,11 @@
    },
    "k": [
     {
+     "a": "POLLO_VIVO",
+     "x": 1.45,
+     "nota": "La canal es ~72 % del peso vivo; piezas con hueso"
+    },
+    {
      "a": "BANDEJA",
      "x": 0.026,
      "nota": "Bandeja de ~16 g por 500 g, en el 80 %"
@@ -675,11 +763,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_AVES",
-     "x": 2.5,
-     "nota": "~1,7 kg de pienso por kg vivo; 1,45 kg vivo por kg de piezas"
     }
    ],
    "ud": {
@@ -699,6 +782,11 @@
    },
    "k": [
     {
+     "a": "POLLO_VIVO",
+     "x": 1.39,
+     "nota": "La canal es ~72 % del peso vivo"
+    },
+    {
      "a": "BOLSA",
      "x": 0.003,
      "nota": "Bolsa de ~8 g por pollo, en el 70 %"
@@ -717,11 +805,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_AVES",
-     "x": 2.4,
-     "nota": "~1,7 kg de pienso por kg vivo; 1,39 kg vivo por kg de canal"
     }
    ],
    "ud": {
@@ -740,6 +823,11 @@
     "1011129001": 1000
    },
    "k": [
+    {
+     "a": "CERDO_VIVO",
+     "x": 1.35,
+     "nota": "La canal es ~78 % del peso vivo; piezas con hueso"
+    },
     {
      "a": "BANDEJA",
      "x": 0.0133,
@@ -769,11 +857,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_CERDOS",
-     "x": 3.5,
-     "nota": "~2,6 kg de pienso por kg vivo; 1,35 kg vivo por kg de piezas"
     }
    ],
    "ud": {
@@ -792,6 +875,11 @@
     "1011119002": 1000
    },
    "k": [
+    {
+     "a": "VACUNO_VIVO",
+     "x": 2.0,
+     "nota": "La canal es ~57 % del peso vivo y la carne despiezada ~85 % de la canal"
+    },
     {
      "a": "BOLSA_MULTICAPA",
      "x": 0.009,
@@ -821,11 +909,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_RUMIANTES",
-     "x": 9.0,
-     "nota": "~4,5 kg de pienso por kg vivo; 2 kg vivo por kg despiezado"
     }
    ],
    "ud": {
@@ -844,6 +927,11 @@
     "1013146108": 1000
    },
    "k": [
+    {
+     "a": "CERDO_VIVO",
+     "x": 1.7,
+     "nota": "~1,3 kg de carne y grasa por kg, por la merma del curado"
+    },
     {
      "a": "TRIPA",
      "x": 0.006,
@@ -868,11 +956,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_CERDOS",
-     "x": 4.4,
-     "nota": "~2,6 kg de pienso por kg vivo; 1,7 kg vivo por kg curado"
     }
    ],
    "ud": {
@@ -891,6 +974,11 @@
     "1013154501": 1000
    },
    "k": [
+    {
+     "a": "CERDO_VIVO",
+     "x": 1.5,
+     "nota": "~1,15 kg de pieza fresca deshuesada por kg"
+    },
     {
      "a": "BANDEJA",
      "x": 0.033,
@@ -920,11 +1008,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_CERDOS",
-     "x": 3.9,
-     "nota": "~2,6 kg de pienso por kg vivo; 1,5 kg vivo por kg"
     }
    ],
    "ud": {
@@ -944,6 +1027,11 @@
    },
    "k": [
     {
+     "a": "CERDO_VIVO",
+     "x": 1.9,
+     "nota": "~1,5 kg de jamón fresco por kg curado (merma ~33 %)"
+    },
+    {
      "a": "BOLSA",
      "x": 0.004,
      "nota": "Funda o malla de ~30 g por pieza"
@@ -962,11 +1050,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_CERDOS",
-     "x": 4.9,
-     "nota": "~2,6 kg de pienso por kg vivo; 1,9 kg vivo por kg curado"
     }
    ],
    "ud": {
@@ -986,6 +1069,11 @@
    },
    "k": [
     {
+     "a": "LECHE_CRUDA",
+     "x": 8.0,
+     "nota": "6-10 kg de leche por kg según el queso"
+    },
+    {
      "a": "BOLSA_MULTICAPA",
      "x": 0.008,
      "nota": "Lámina o bolsa de vacío, ~8 g por kg"
@@ -1004,11 +1092,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_RUMIANTES",
-     "x": 3.2,
-     "nota": "~8 l de leche por kg de queso, con ~0,4 kg de pienso por litro"
     }
    ],
    "ud": {
@@ -1027,6 +1110,11 @@
     "1051114201": 1000
    },
    "k": [
+    {
+     "a": "LECHE_CRUDA",
+     "x": 1.03,
+     "nota": "Un litro de leche pesa ~1,03 kg"
+    },
     {
      "a": "ESTUCHE",
      "x": 0.027,
@@ -1051,11 +1139,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_RUMIANTES",
-     "x": 0.4,
-     "nota": "~0,4 kg de pienso por litro de leche"
     }
    ],
    "ud": {
@@ -1075,6 +1158,11 @@
    },
    "k": [
     {
+     "a": "LECHE_CRUDA",
+     "x": 1.1,
+     "nota": "Leche, con algo de leche en polvo"
+    },
+    {
      "a": "BANDEJA",
      "x": 0.032,
      "nota": "Vaso de ~4 g por 125 g (plástico termoformado)"
@@ -1093,11 +1181,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_RUMIANTES",
-     "x": 0.45,
-     "nota": "~1,1 l de leche por kg, con ~0,4 kg de pienso por litro"
     }
    ],
    "ud": {
@@ -1706,6 +1789,11 @@
    },
    "k": [
     {
+     "a": "CERDO_VIVO",
+     "x": 0.6,
+     "nota": "~35 % de carne de cerdo"
+    },
+    {
      "a": "LATA",
      "x": 1.0,
      "nota": "1 kg × 40 % ÷ 400 g"
@@ -1734,11 +1822,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_CERDOS",
-     "x": 1.6,
-     "nota": "~35 % de carne de cerdo"
     }
    ],
    "ud": {
@@ -1911,6 +1994,11 @@
    },
    "k": [
     {
+     "a": "LECHE_CRUDA",
+     "x": 1.2,
+     "nota": "~15 % de queso"
+    },
+    {
      "a": "HARINA",
      "x": 0.45,
      "nota": "~450 g de harina por kg"
@@ -1934,11 +2022,6 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
-    },
-    {
-     "a": "PIENSO_RUMIANTES",
-     "x": 0.5,
-     "nota": "~15 % de queso"
     }
    ],
    "ud": {

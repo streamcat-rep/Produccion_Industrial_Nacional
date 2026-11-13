@@ -134,11 +134,15 @@ CADENA: dict[str, list[tuple[str, float, str]]] = {
     "TUBO_CARTON": [("TESTLINER", 1.05, "~5 % de recortes")],
     "ETIQUETA": [("PAPEL_ESTUCADO", 0.7, "La cara de la etiqueta; el resto es soporte y adhesivo")],
     "PALE": [("MADERA", 0.045, "~25 kg de madera por palé")],
-    "PIENSO_AVES": [("TORTA_SOJA", 0.25, "~25 % de harina de soja; el cereal no está en la encuesta"),
+    "POLLO_VIVO": [("PIENSO_AVES", 1.7, "~1,7 kg de pienso por kg de pollo vivo")],
+    "CERDO_VIVO": [("PIENSO_CERDOS", 2.6, "~2,6 kg de pienso por kg de cerdo vivo")],
+    "VACUNO_VIVO": [("PIENSO_RUMIANTES", 4.5, "~4,5 kg de pienso por kg de vacuno vivo, además del forraje")],
+    "LECHE_CRUDA": [("PIENSO_RUMIANTES", 0.4, "~0,4 kg de pienso por litro, además del forraje")],
+    "PIENSO_AVES": [("CEREAL", 0.6, "~60 % de cereal"), ("TORTA_SOJA", 0.25, "~25 % de harina de soja"),
                     ("PREMEZCLA", 0.01, "~1 % de premezcla")],
-    "PIENSO_CERDOS": [("TORTA_SOJA", 0.15, "~15 % de harina de soja; el cereal no está en la encuesta"),
+    "PIENSO_CERDOS": [("CEREAL", 0.7, "~70 % de cereal"), ("TORTA_SOJA", 0.15, "~15 % de harina de soja"),
                       ("PREMEZCLA", 0.01, "~1 % de premezcla")],
-    "PIENSO_RUMIANTES": [("TORTA_SOJA", 0.12, "~12 % de harina de soja; el cereal y el forraje no están en la encuesta"),
+    "PIENSO_RUMIANTES": [("CEREAL", 0.6, "~60 % de cereal"), ("TORTA_SOJA", 0.12, "~12 % de harina de soja"),
                          ("PREMEZCLA", 0.01, "~1 % de premezcla")],
     "PE_BD": [("ETILENO", 1.0, "Un kilo de etileno por kilo de polietileno")],
     "PE_AD": [("ETILENO", 1.0, "Un kilo de etileno por kilo de polietileno")],
@@ -376,24 +380,37 @@ RECETAS: list[tuple[str, str, str, str, list[str], str, list[tuple[str, float, s
 ]
 
 # Unidad de la encuesta -> (base de la receta, cuántas unidades base es una de la encuesta).
-# --- Pienso -------------------------------------------------------------------------
-# La granja no está en la encuesta industrial, pero el pienso sí (en toneladas). Se suma
-# como un componente más: el trabajo de la fábrica de pienso es trabajo anterior que
-# lleva la carne, la leche o el queso.
-# id de receta: [(alias de COMPONENTES, kg de pienso por kg o litro de producto, nota)]
-PIENSO: dict[str, list[tuple[str, float, str]]] = {
-    "POLLO_PIEZAS": [("PIENSO_AVES", 2.5, "~1,7 kg de pienso por kg vivo; 1,45 kg vivo por kg de piezas")],
-    "POLLO_ENTERO": [("PIENSO_AVES", 2.4, "~1,7 kg de pienso por kg vivo; 1,39 kg vivo por kg de canal")],
-    "CERDO": [("PIENSO_CERDOS", 3.5, "~2,6 kg de pienso por kg vivo; 1,35 kg vivo por kg de piezas")],
-    "VACUNO": [("PIENSO_RUMIANTES", 9.0, "~4,5 kg de pienso por kg vivo; 2 kg vivo por kg despiezado")],
-    "EMBUTIDOS": [("PIENSO_CERDOS", 4.4, "~2,6 kg de pienso por kg vivo; 1,7 kg vivo por kg curado")],
-    "JAMON_COCIDO": [("PIENSO_CERDOS", 3.9, "~2,6 kg de pienso por kg vivo; 1,5 kg vivo por kg")],
-    "JAMON_CURADO": [("PIENSO_CERDOS", 4.9, "~2,6 kg de pienso por kg vivo; 1,9 kg vivo por kg curado")],
-    "LECHE": [("PIENSO_RUMIANTES", 0.4, "~0,4 kg de pienso por litro de leche")],
-    "QUESO": [("PIENSO_RUMIANTES", 3.2, "~8 l de leche por kg de queso, con ~0,4 kg de pienso por litro")],
-    "YOGUR": [("PIENSO_RUMIANTES", 0.45, "~1,1 l de leche por kg, con ~0,4 kg de pienso por litro")],
-    "PLATOS": [("PIENSO_CERDOS", 1.6, "~35 % de carne de cerdo")],
-    "PIZZAS": [("PIENSO_RUMIANTES", 0.5, "~15 % de queso")],
+# --- Granja y campo ---------------------------------------------------------------------
+# La encuesta industrial no mide las granjas ni el campo. Su trabajo sale de la Encuesta
+# de Estructura de las Explotaciones Agrarias (Eurostat ef_m_farmleg): unidades de
+# trabajo-año (UTA, una persona a tiempo completo un año) y producción estándar en
+# euros de cada tipo de explotación. Años-persona = valor ÷ productividad, la misma
+# regla que en la industria, con el precio en origen de Eurostat (apri_ap_*).
+# alias: (nombre, tipo de explotación, conjunto de precios, código, divisor -> €/kg)
+#   FT1 cultivos herbáceos (cereal); FT4 herbívoros (vacuno de leche y de carne);
+#   FT5 granívoros (porcino y aves).
+GRANJA: dict[str, tuple[str, str, str, str, float]] = {
+    "POLLO_VIVO": ("Pollo vivo (granja)", "FT5", "apri_ap_anouta", "11510000", 100),
+    "CERDO_VIVO": ("Cerdo vivo (granja)", "FT5", "apri_ap_anouta", "11210000", 100),
+    "VACUNO_VIVO": ("Vacuno vivo (granja)", "FT4", "apri_ap_anouta", "11110000", 100),
+    "LECHE_CRUDA": ("Leche cruda de vaca (granja)", "FT4", "apri_ap_anouta", "12112000", 100),
+    "CEREAL": ("Cereal para pienso: maíz (campo)", "FT1", "apri_ap_crpouta", "01500000", 100),
+}
+
+# id de receta: [(alias de GRANJA, kg por kg o litro de producto, nota)]
+GRANJA_RECETA: dict[str, list[tuple[str, float, str]]] = {
+    "POLLO_PIEZAS": [("POLLO_VIVO", 1.45, "La canal es ~72 % del peso vivo; piezas con hueso")],
+    "POLLO_ENTERO": [("POLLO_VIVO", 1.39, "La canal es ~72 % del peso vivo")],
+    "CERDO": [("CERDO_VIVO", 1.35, "La canal es ~78 % del peso vivo; piezas con hueso")],
+    "VACUNO": [("VACUNO_VIVO", 2.0, "La canal es ~57 % del peso vivo y la carne despiezada ~85 % de la canal")],
+    "EMBUTIDOS": [("CERDO_VIVO", 1.7, "~1,3 kg de carne y grasa por kg, por la merma del curado")],
+    "JAMON_COCIDO": [("CERDO_VIVO", 1.5, "~1,15 kg de pieza fresca deshuesada por kg")],
+    "JAMON_CURADO": [("CERDO_VIVO", 1.9, "~1,5 kg de jamón fresco por kg curado (merma ~33 %)")],
+    "LECHE": [("LECHE_CRUDA", 1.03, "Un litro de leche pesa ~1,03 kg")],
+    "QUESO": [("LECHE_CRUDA", 8.0, "6-10 kg de leche por kg según el queso")],
+    "YOGUR": [("LECHE_CRUDA", 1.1, "Leche, con algo de leche en polvo")],
+    "PLATOS": [("CERDO_VIVO", 0.6, "~35 % de carne de cerdo")],
+    "PIZZAS": [("LECHE_CRUDA", 1.2, "~15 % de queso")],
 }
 
 # Unidad de venta, para dar también el tiempo de trabajo de lo que se compra:
@@ -450,9 +467,9 @@ def construir(datos: dict) -> dict:
             factores[codigo] = factor
         if len(bases) > 1:
             errores.append(f"Receta {rid}: mezcla productos en kilos y en litros")
-        lista = list(lista) + PIENSO.get(rid, [])
+        lista = GRANJA_RECETA.get(rid, []) + list(lista)
         for alias, cantidad, _nota in lista:
-            if alias not in COMPONENTES:
+            if alias not in COMPONENTES and alias not in GRANJA:
                 errores.append(f"Receta {rid}: componente desconocido {alias}")
             if cantidad <= 0:
                 errores.append(f"Receta {rid}: cantidad no positiva para {alias}")
@@ -467,10 +484,13 @@ def construir(datos: dict) -> dict:
         })
     for alias, entradas in CADENA.items():
         for entrada, cantidad, _nota in entradas:
-            if alias not in COMPONENTES or entrada not in COMPONENTES or cantidad <= 0:
+            nodos = COMPONENTES.keys() | GRANJA.keys()
+            if alias not in nodos or entrada not in nodos or cantidad <= 0:
                 errores.append(f"CADENA: {alias} -> {entrada} no es válido")
     ids = {r[0] for r in RECETAS}
-    errores += [f"PIENSO o VENTA citan una receta que no existe: {r}" for r in (set(PIENSO) | set(VENTA)) - ids]
+    errores += [f"GRANJA_RECETA o VENTA citan una receta que no existe: {r}" for r in (set(GRANJA_RECETA) | set(VENTA)) - ids]
+    for alias, (nombre, tipo, ds, codigo, divisor) in GRANJA.items():
+        componentes[alias] = {"c": None, "n": nombre, "u": "kg", "f": 1, "granja": tipo, "precio": f"{ds}/{codigo}"}
     if errores:
         raise ValueError("Errores en scripts/recetas.py:\n  " + "\n  ".join(errores))
     return {

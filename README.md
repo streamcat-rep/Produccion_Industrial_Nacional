@@ -12,12 +12,14 @@ fabricada y valor económico— desde 2008, a partir de la
 | `final.html` | Página «Producción final»: cada producto con sus envases e ingredientes. |
 | `data/produccion.json` | Los datos que lee la web. |
 | `data/recetas.json` | Las recetas comprobadas (lo lee `final.html`). |
+| `data/granja.json` | Trabajo en granjas y campo por euro, y precios en origen (Eurostat; lo lee `final.html`). |
 | `data/crudo/` | Copia comprimida de lo descargado del INE, un fichero por año. |
 | `scripts/actualizar.py` | Descarga del INE y regenera `data/`. |
 | `scripts/ine_eip.py` | Cliente de la aplicación de consulta del INE. |
 | `scripts/ine_macro.py` | PIB y asalariados del INE, para la productividad. |
 | `scripts/nombres.py` | Nombres claros, emojis y unidades. **Edítalo para renombrar.** |
 | `scripts/recetas.py` | Qué lleva cada producto al venderse (bandeja, film, botella…). **Edítalo para afinar.** |
+| `scripts/granja.py` | Descarga de Eurostat el trabajo (UTA) y la producción por tipo de explotación, y los precios en origen. |
 | `scripts/ine_tio.py` | Tablas input-output del INE. |
 | `scripts/destinos.py` | Qué es bien final, qué insumo y de quién. **Edítalo para reclasificar.** |
 | `.github/workflows/actualizar.yml` | Actualización automática en GitHub. |
@@ -125,13 +127,13 @@ litro.
 - **Cadena hacia atrás** (`CADENA` en `scripts/recetas.py`): cada componente lleva
   sus materias primas si la encuesta las mide (bandeja → polipropileno → propileno
   → nafta; caja → papel → pasta; lata → hojalata → acero; pienso → harina de soja).
-- **Trabajo de cada eslabón**: por defecto, el directo (valor ÷ producción por
-  asalariado de su rama), para sumar la cadena sin contar dos veces. Con «valor
-  añadido por asalariado» (la otra pestaña) cada producto ya incluye parte del
-  trabajo de sus materias primas.
-- El **pienso** (en la encuesta, en toneladas) entra como un componente más de la
-  carne y la leche (`PIENSO` en `scripts/recetas.py`). La granja no está en la
-  encuesta y no entra.
+- **Trabajo de cada nodo**: por defecto, valor ÷ valor añadido por asalariado de su
+  rama, como en la otra pestaña. Se puede elegir solo el trabajo directo (valor ÷
+  producción por asalariado), que no cuenta dos veces lo que el precio ya incluye.
+- **Granja y campo** (`GRANJA` en `scripts/recetas.py`, datos en `scripts/granja.py`):
+  años-persona = valor en origen ÷ productividad de su tipo de explotación (UTA entre
+  producción estándar, Eurostat). Árbol: pollo en piezas → pollo vivo → pienso →
+  cereal y soja.
 - La página avisa cuando una receta pide más de un componente del que se fabrica
   en España: o se importa (malta, tapones de corcho) o la receta exagera.
 - Tras tocar las recetas: `python scripts/recetas.py` (comprueba los códigos y

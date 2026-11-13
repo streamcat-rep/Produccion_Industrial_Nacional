@@ -172,10 +172,15 @@
     <li><strong>Trabajo de cada eslabón</strong>: para sumar la cadena sin contar nada dos veces, cada eslabón cuenta solo su trabajo directo: su valor
       entre la producción por asalariado de su rama (suma de la encuesta). Con «valor añadido por asalariado», como en la otra pestaña, cada producto ya
       lleva dentro parte del trabajo de sus materias primas (su precio las incluye), y sumarle la cadena las cuenta dos veces.</li>
-    <li><strong>El pienso</strong> está en la encuesta (en toneladas) y se suma como un componente: los kilos de pienso por kilo de carne o litro de leche
+    <li><strong>La granja y el campo</strong> no están en la encuesta industrial. Su trabajo sigue la misma regla, valor ÷ productividad, con datos de
+      Eurostat para España: las unidades de trabajo-año (UTA, una persona a tiempo completo un año) entre la producción en euros de cada tipo de
+      explotación (granívoros para el pollo y el cerdo; herbívoros para el vacuno y la leche; cultivos herbáceos para el cereal), por el precio en
+      origen del kilo de pollo vivo, de leche cruda o de maíz. El árbol es: pollo en piezas → pollo vivo → pienso → cereal y soja.
+      La soja en grano es importada y no entra.</li>
+    <li><strong>El pienso</strong> está en la encuesta (en toneladas) y lo come el animal de la granja: los kilos de pienso por kilo vivo o litro de leche
       salen del índice de conversión típico (~1,7 kg por kg vivo en el pollo, ~2,6 en el cerdo), explicado en cada fila.</li>
-    <li><strong>Lo que no entra</strong>: lo que la encuesta industrial no mide: el trabajo en la granja y en el campo (el pollo vivo, la uva, la aceituna),
-      el atún, el café verde, el transporte y la tienda.</li>
+    <li><strong>Lo que no entra</strong>: el campo de los productos sin nodo de granja (la uva, la aceituna, el trigo del pan), el forraje del vacuno, la pesca
+      del atún, lo importado (soja en grano, café verde, petróleo crudo), el transporte y la tienda.</li>
     <li><strong>Unidades</strong>: kilos de producto (litros en bebidas, leche no, que el INE da en toneladas) y cada componente en su unidad: kilos de
       bandeja o film, unidades de botella o lata. El INE publica las latas de aluminio en «kilogramos», pero a 0,05 € el kilo solo cuadra si son latas: se
       cuentan como latas.</li>
@@ -195,6 +200,7 @@ const fmtCorto = new Intl.NumberFormat("es-ES", { notation: "compact", maximumFr
 
 let datos = null;    // produccion.json
 let recetas = null;  // recetas.json
+let granja = null;   // granja.json: trabajo en granjas y campo, y precios en origen (Eurostat)
 let P = {};          // código PRODCOM -> producto
 let n = 0;           // posición del año elegido
 let abierta = null;  // id de la receta desplegada
@@ -239,11 +245,29 @@ function productividad(p) {
 }
 
 /** Un eslabón de la cadena: un producto de la encuesta, su trabajo y el de sus materias primas. */
+/** Valor de una serie {año: valor} en el año elegido o en el más cercano. */
+function cercano(serie) {
+  const anyo = datos.meta.anyos[n];
+  const a = Object.keys(serie || {}).map(Number).sort((x, y) => Math.abs(x - anyo) - Math.abs(y - anyo) || y - x)[0];
+  return a == null ? null : { eur: serie[a], anyo: a };
+}
+
 function eslabon(alias, cant, visto = new Set()) {
-  const comp = recetas.componentes[alias], pc = P[comp.c];
-  const pr = precio(comp), valor = pr ? cant * pr.eur : null, prod = productividad(pc);
-  const ap = valor != null && prod ? valor / prod : null;
-  const fabricado = pc.q[n] ? pc.q[n] * comp.f : null;
+  const comp = recetas.componentes[alias];
+  let pr, valor, ap, fabricado = null;
+  if (comp.granja) {
+    // Granja o campo: precio en origen y años-persona por euro de su tipo de explotación (Eurostat).
+    pr = cercano(granja.precios[alias]);
+    const t = cercano(granja.trabajo[comp.granja]);
+    valor = pr ? cant * pr.eur : null;
+    ap = valor != null && t ? (valor * t.eur) / 1e6 : null;
+  } else {
+    const pc = P[comp.c], prod = productividad(pc);
+    pr = precio(comp);
+    valor = pr ? cant * pr.eur : null;
+    ap = valor != null && prod ? valor / prod : null;
+    fabricado = pc.q[n] ? pc.q[n] * comp.f : null;
+  }
   const dentro = new Set(visto).add(alias);
   const hijos = (recetas.cadena[alias] || []).filter((e) => !dentro.has(e.a))
     .map((e) => ({ ...eslabon(e.a, cant * e.x, dentro), x: e.x, nota: e.nota }));
@@ -344,7 +368,7 @@ function detalle(f) {
   const fila = (e, lleva, nivel) => {
     const cuota = e.cuota == null ? "—"
       : `<span class="${e.cuota > 1 ? "aviso" : ""}" title="${e.cuota > 1 ? "Más de lo que se fabrica en España: se importa o la receta exagera" : ""}">${fmtPct.format(e.cuota)}</span>`;
-    const icono = nivel ? "↳" : e.comp.c.startsWith("1091") ? "🌾" : "📦";
+    const icono = (nivel ? "↳ " : "") + (e.comp.granja ? (e.comp.granja === "FT1" ? "🌾" : "🐔") : (e.comp.c || "").startsWith("1091") ? "🥣" : nivel ? "" : "📦");
     const mu = min(e.ap, e.cant), mc = min(e.apCadena, e.cant);
     const u = e.comp.u === "uds" ? "ud" : e.comp.u;
     return `<tr><td style="padding-left:${8 + nivel * 22}px">${icono} ${esc(e.comp.n)}<div class="meta">${esc(e.nota)}</div></td>
@@ -438,7 +462,7 @@ function descargarCsv() {
     lineas.push([f.r.n, f.r.fam, "(el producto)", Object.keys(f.r.p).join(" "), 1, f.r.base, dec(f.q),
                  f.q ? dec(f.v / f.q) : "", dec(f.v), "", dec(f.ap), f.r.fmt].map(celda).join(";"));
     const csvFila = (e, nivel) => {
-      lineas.push([f.r.n, f.r.fam, `${"↳ ".repeat(nivel)}${e.comp.n}`, e.comp.c, dec(e.x), e.comp.u, dec(e.cant), e.pr ? dec(e.pr.eur) : "",
+      lineas.push([f.r.n, f.r.fam, `${"↳ ".repeat(nivel)}${e.comp.n}`, e.comp.c || e.comp.precio, dec(e.x), e.comp.u, dec(e.cant), e.pr ? dec(e.pr.eur) : "",
                    dec(e.valor), e.cuota == null ? "" : dec(e.cuota * 100), dec(e.ap), e.nota].map(celda).join(";"));
       e.hijos.forEach((h) => csvFila(h, nivel + 1));
     };
@@ -453,7 +477,8 @@ function descargarCsv() {
 
 async function iniciar() {
   try {
-    [datos, recetas] = await Promise.all([leer("data/produccion.json"), leer("data/recetas.json")]);
+    [datos, recetas, granja] = await Promise.all(
+      [leer("data/produccion.json"), leer("data/recetas.json"), leer("data/granja.json")]);
   } catch (err) {
     $("estado").textContent = `No se pudieron cargar los datos (${err.message}). Abre la página desde un servidor, no con doble clic.`;
     return;

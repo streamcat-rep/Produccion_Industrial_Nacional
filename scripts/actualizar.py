@@ -25,6 +25,7 @@ from pathlib import Path
 
 import ine_eip
 import ine_macro
+import granja
 import recetas
 from nombres import SECTORES, emoji_de, nombre_de, unidad_clara
 
@@ -240,6 +241,8 @@ def main() -> int:
 
     # La página «Producción final» (final.html) suma a cada producto sus envases.
     recetas.generar(datos)
+    if not args.sin_descarga:  # trabajo en granjas y campo, y precios en origen (Eurostat)
+        granja.generar()
 
     meta = datos["meta"]
     print(f"Listo: {len(datos['productos'])} productos, {meta['anyos'][0]}–{meta['ultimo']} "
