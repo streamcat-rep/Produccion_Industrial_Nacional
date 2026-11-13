@@ -122,7 +122,7 @@
   <h2>Productos tal como se venden</h2>
   <div class="leyenda" aria-hidden="true">
     <span style="--c: var(--serie-final)">El producto (la carne, la leche, el vino…)</span>
-    <span style="--c: var(--serie-insumo)">Envases e ingredientes que lleva (bandeja, film, botella, lata, caja, harina…)</span>
+    <span style="--c: var(--serie-insumo)">Envases, ingredientes y pienso que lleva (bandeja, film, botella, lata, caja, harina, pienso…)</span>
   </div>
   <div class="tabla-caja">
     <table>
@@ -132,7 +132,8 @@
         <th class="n" title="Valor de los envases e ingredientes que lleva, a precio medio del INE">Envases e ingred.</th>
         <th class="n" title="Producto + envases e ingredientes">Suma</th>
         <th class="n" title="Años de trabajo de una persona para producir todo junto">Años-persona</th>
-        <th class="n" title="Minutos de trabajo por kilo o litro, sumando producto, envases e ingredientes">TTSN por kg/l</th>
+        <th class="n" title="Minutos de trabajo por kilo o litro, sumando producto, envases, ingredientes y pienso">TTSN por kg/l</th>
+        <th class="n" title="Minutos de trabajo de lo que se compra: el producto más todo lo que lleva">TTSN por unidad de venta</th>
         <th class="col-barra"></th></tr></thead>
       <tbody id="filas"></tbody>
       <tfoot id="pie"></tfoot>
@@ -153,11 +154,14 @@
     <li><strong>% de lo fabricado en España</strong>: qué parte de la producción española de ese componente haría falta. Si pasa del 100 %, ese componente
       se importa (la malta, los tapones de corcho de Portugal, los frascos de perfumería…) o la receta exagera; en los dos casos el aviso se ve en naranja.
       El componente se valora igual, al precio medio español.</li>
-    <li><strong>Años-persona</strong>: valor de cada parte entre la productividad (valor añadido por asalariado) de la rama que lo fabrica, sumados: el
-      trabajo de la carne más el de la bandeja más el del film. <strong>TTSN por kg/l</strong>: esas horas (años-persona × jornada) entre la cantidad producida.
-      Aquí sí se suman, porque son partes del mismo producto. El INE solo da dos ramas industriales (manufactura; extractivas, energía y agua).</li>
-    <li><strong>Lo que no entra</strong>: la materia prima del campo o importada que la encuesta industrial no mide (el pollo vivo, el atún, el café verde,
-      la uva), el transporte, la tienda y la energía. Solo entran componentes que la encuesta mide con cantidad.</li>
+    <li><strong>Cómo se suma el trabajo</strong>: cada producto de la encuesta tiene sus años-persona (su valor entre la productividad de su rama, como en
+      la pestaña «Producción y trabajo necesario»). Divididos entre lo que se produjo dan su <strong>TTSN por unidad</strong>: minutos por kilo de pollo, por kilo
+      de bandeja, por botella, por kilo de pienso. El producto final es la suma del trabajo anterior: 0,5 kg × los minutos del kilo de pollo + una bandeja ×
+      los minutos de una bandeja + el film + el pienso… Las partes se fabrican a la vez, en paralelo, y el envasado final ya va dentro del producto.</li>
+    <li><strong>El pienso</strong> está en la encuesta (en toneladas) y se suma como un componente: los kilos de pienso por kilo de carne o litro de leche
+      salen del índice de conversión típico (~1,7 kg por kg vivo en el pollo, ~2,6 en el cerdo), explicado en cada fila.</li>
+    <li><strong>Lo que no entra</strong>: lo que la encuesta industrial no mide: el trabajo en la granja y en el campo (el pollo vivo, la uva, la aceituna),
+      el atún, el café verde, el transporte y la tienda.</li>
     <li><strong>Unidades</strong>: kilos de producto (litros en bebidas, leche no, que el INE da en toneladas) y cada componente en su unidad: kilos de
       bandeja o film, unidades de botella o lata. El INE publica las latas de aluminio en «kilogramos», pero a 0,05 € el kilo solo cuadra si son latas: se
       cuentan como latas.</li>
@@ -233,14 +237,19 @@ function calcular() {
       const valor = pr ? cant * pr.eur : null;
       const prod = productividad(pc);
       const fabricado = pc.q[n] ? pc.q[n] * comp.f : null;
-      return { ...k, comp, cant, pr, valor, ap: valor != null && prod ? valor / prod : null,
+      const ap = valor != null && prod ? valor / prod : null;
+      return { ...k, comp, cant, pr, valor, ap,
+               // Minutos de trabajo por unidad del componente (por kg de bandeja, por botella…).
+               minUnidad: ap != null && cant ? (ap * jornada * 60) / cant : null,
                cuota: fabricado ? cant / fabricado : null };
     });
     const vComp = comps.reduce((s, c) => s + (c.valor || 0), 0);
     const apComp = comps.reduce((s, c) => s + (c.ap || 0), 0);
     const apTotal = ap + apComp;
-    filas.push({ r, q, v, ap, comps, vComp, apComp, apTotal, sinDato,
-                 minutos: q && jornada ? (apTotal * jornada * 60) / q : null });
+    const minutos = q && jornada ? (apTotal * jornada * 60) / q : null;
+    filas.push({ r, q, v, ap, comps, vComp, apComp, apTotal, sinDato, minutos,
+                 minProducto: q && jornada ? (ap * jornada * 60) / q : null,
+                 minUd: minutos == null ? null : minutos * r.ud.x });
   }
   calculo = { filas, max: Math.max(...filas.map((f) => f.v + f.vComp)) };
 }
@@ -289,32 +298,40 @@ function unidadComp(c, cant) {
   return c.comp.u === "kg" ? (cant >= 1e4 ? `${corto(cant / 1000)} t` : `${fmtNum.format(cant)} kg`) : `${corto(cant)} uds`;
 }
 
+const minTxt = (m) => (m == null ? "—" : m >= 100 ? `${fmtNum.format(m)} min` : m >= 10 ? `${fmtDec.format(m)} min` : `${fmtX.format(m)} min`);
+// Cantidad que lleva una unidad de venta, en la unidad del componente.
+const porVenta = (x, u) => (u === "kg" ? (x >= 1 ? `${fmtX.format(x)} kg` : `${fmtX.format(x * 1000)} g`) : `${fmtX.format(x)} ud`);
+
 function detalle(f) {
-  const base = f.r.base;
+  const base = f.r.base, ud = f.r.ud;
   const filas = f.comps.map((c) => {
     const cuota = c.cuota == null ? "—"
       : `<span class="${c.cuota > 1 ? "aviso" : ""}" title="${c.cuota > 1 ? "Más de lo que se fabrica en España: se importa o la receta exagera" : ""}">${fmtPct.format(c.cuota)}</span>`;
-    return `<tr><td>${esc(c.comp.n)}<div class="meta">${esc(c.nota)}</div></td>
-      <td class="n">${fmtX.format(c.x)} ${c.comp.u}/${base}</td>
+    const lleva = c.x * ud.x;
+    return `<tr><td>${c.comp.c.startsWith("1091") ? "🌾" : "📦"} ${esc(c.comp.n)}<div class="meta">${esc(c.nota)}</div></td>
+      <td class="n">${porVenta(lleva, c.comp.u)}</td>
+      <td class="n">${c.minUnidad == null ? "—" : `${minTxt(c.minUnidad)}/${c.comp.u === "kg" ? "kg" : "ud"}`}</td>
+      <td class="n">${c.minUnidad == null ? "—" : minTxt(lleva * c.minUnidad)}</td>
       <td class="n">${unidadComp(c, c.cant)}</td>
-      <td class="n">${c.pr ? `${fmtPrecio.format(c.pr.eur)} €/${c.comp.u === "kg" ? "kg" : "ud"}${c.pr.anyo !== datos.meta.anyos[n] ? ` <span class="meta">(${c.pr.anyo})</span>` : ""}` : "—"}</td>
-      <td class="n">${c.valor != null ? millones(c.valor) : "—"}</td>
-      <td class="n">${cuota}</td>
-      <td class="n">${anios(c.ap)}</td></tr>`;
+      <td class="n">${anios(c.ap)}</td>
+      <td class="n">${cuota}</td></tr>`;
   }).join("");
-  return `<tr class="detalle"><td colspan="9">
-    <p><strong>Formato de venta supuesto:</strong> ${esc(f.r.fmt)}.</p>
-    <table><thead><tr><th>Componente</th><th class="n">Por ${base}</th><th class="n">Cantidad</th><th class="n">Precio medio INE</th>
-      <th class="n">Valor</th><th class="n" title="Parte de la producción española de ese componente">% de lo fabricado en España</th><th class="n">Años-persona</th></tr></thead>
+  return `<tr class="detalle"><td colspan="10">
+    <p><strong>Una ${esc(ud.n)}</strong> lleva el trabajo de todo lo que la compone, hecho antes y en paralelo. Formato de venta supuesto: ${esc(f.r.fmt)}.</p>
+    <table><thead><tr><th>Qué lleva</th><th class="n">En una ${esc(ud.n)}</th>
+      <th class="n" title="Años-persona de toda la producción española de ese producto × jornada × 60, entre la cantidad producida">TTSN por unidad</th>
+      <th class="n">Minutos en la ${esc(ud.n)}</th>
+      <th class="n">Cantidad en el año</th><th class="n">Años-persona en el año</th>
+      <th class="n" title="Parte de la producción española de ese componente">% de lo fabricado en España</th></tr></thead>
     <tbody>
-      <tr><td><strong>${esc(f.r.n)}</strong><div class="meta">El producto: ${Object.keys(f.r.p).map((c) => `${c} · ${esc(P[c].n)}`).join("; ")}</div></td>
-        <td class="n">1 ${base}</td><td class="n">${cantidadProducto(f)}</td>
-        <td class="n">${f.q ? `${fmtPrecio.format(f.v / f.q)} €/${base}` : "—"}</td>
-        <td class="n">${millones(f.v)}</td><td class="n">—</td><td class="n">${anios(f.ap)}</td></tr>
+      <tr><td>🏭 <strong>${esc(f.r.n)}</strong><div class="meta">${Object.keys(f.r.p).map((c) => `${c} · ${esc(P[c].n)}`).join("; ")}</div></td>
+        <td class="n">${base === "l" ? `${fmtX.format(ud.x)} l` : porVenta(ud.x, "kg")}</td>
+        <td class="n">${f.minProducto == null ? "—" : `${minTxt(f.minProducto)}/${base}`}</td>
+        <td class="n">${f.minProducto == null ? "—" : minTxt(ud.x * f.minProducto)}</td>
+        <td class="n">${cantidadProducto(f)}</td><td class="n">${anios(f.ap)}</td><td class="n">—</td></tr>
       ${filas}
-      <tr class="total"><td>Todo junto</td><td></td><td></td>
-        <td class="n">${f.q ? `${fmtPrecio.format((f.v + f.vComp) / f.q)} €/${base}` : "—"}</td>
-        <td class="n">${millones(f.v + f.vComp)}</td><td></td><td class="n">${anios(f.apTotal)}</td></tr>
+      <tr class="total"><td>Todo junto</td><td></td><td></td><td class="n">${minTxt(f.minUd)}</td><td></td>
+        <td class="n">${anios(f.apTotal)}</td><td></td></tr>
     </tbody></table></td></tr>`;
 }
 
@@ -326,7 +343,7 @@ function pintarTabla(filas) {
     const s = (k) => deFam.reduce((t, f) => t + f[k], 0);
     const cab = `<tr class="familia"><td></td><td>${esc(fam)}<div class="meta">${deFam.length} productos</div></td><td></td>
       <td class="n">${millones(s("v"))}</td><td class="n">${millones(s("vComp"))}</td><td class="n">${millones(s("v") + s("vComp"))}</td>
-      <td class="n">${anios(s("apTotal"))}</td><td></td><td></td></tr>`;
+      <td class="n">${anios(s("apTotal"))}</td><td></td><td></td><td></td></tr>`;
     return cab + deFam.map((f) => {
       const avisos = f.comps.filter((c) => c.cuota > 1).length;
       const fila = `<tr class="receta" data-id="${f.r.id}" tabindex="0" aria-expanded="${abierta === f.r.id}">
@@ -338,16 +355,17 @@ function pintarTabla(filas) {
         <td class="n">${millones(f.v + f.vComp)}</td>
         <td class="n">${anios(f.apTotal)}</td>
         <td class="n">${f.minutos == null ? "—" : `${fmtDec.format(f.minutos)} min/${f.r.base}`}</td>
+        <td class="n">${minTxt(f.minUd)}<div class="meta">${esc(f.r.ud.n)}</div></td>
         <td class="col-barra"><div class="barra" role="img" aria-label="${esc(f.r.n)}: ${millones(f.v)} de producto y ${millones(f.vComp)} de envases e ingredientes">
           <i class="f" style="width:${ancho(f.v)}"></i><i class="i" style="width:${ancho(f.vComp)}"></i></div></td></tr>`;
       return abierta === f.r.id ? fila + detalle(f) : fila;
     }).join("");
   }).join("");
-  $("filas").innerHTML = html || `<tr><td colspan="9" class="meta">Ningún producto coincide.</td></tr>`;
+  $("filas").innerHTML = html || `<tr><td colspan="10" class="meta">Ningún producto coincide.</td></tr>`;
   const s = (k) => filas.reduce((t, f) => t + f[k], 0);
   $("pie").innerHTML = `<tr><td></td><td>Total</td><td class="meta">Kilos y litros no se suman</td>
     <td class="n">${millones(s("v"))}</td><td class="n">${millones(s("vComp"))}</td><td class="n">${millones(s("v") + s("vComp"))}</td>
-    <td class="n">${anios(s("apTotal"))}</td><td></td><td></td></tr>`;
+    <td class="n">${anios(s("apTotal"))}</td><td></td><td></td><td></td></tr>`;
 }
 
 function pintar() {
@@ -423,6 +441,7 @@ function recalcular() {
 
 $("anyo").addEventListener("change", (ev) => { n = Number(ev.target.value); recalcular(); });
 $("jornada").addEventListener("input", () => datos && recalcular());
+// (los minutos dependen de la jornada; los años-persona, no)
 $("familia").addEventListener("change", () => calculo && repintar());
 $("buscar").addEventListener("input", () => calculo && repintar());
 $("csv").addEventListener("click", descargarCsv);

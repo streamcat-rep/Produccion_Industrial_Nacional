@@ -72,6 +72,9 @@ COMPONENTES: dict[str, tuple[str, str, str, float]] = {
     # Madera
     "PALE": ("1624113305", "Palés de madera", "uds", 1),
     # Ingredientes que la encuesta también mide
+    "PIENSO_AVES": ("1091103703", "Pienso para aves", "kg", 1000),
+    "PIENSO_CERDOS": ("1091103306", "Pienso para cerdos", "kg", 1000),
+    "PIENSO_RUMIANTES": ("1091103504", "Pienso para vacas, ovejas y cabras", "kg", 1000),
     "HARINA": ("1061210001", "Harina de trigo", "kg", 1000),
     "MALTA": ("1106103003", "Malta", "kg", 1000),
     "ACEITE": ("1041540004", "Aceite de girasol refinado", "kg", 1000),
@@ -299,6 +302,46 @@ RECETAS: list[tuple[str, str, str, str, list[str], str, list[tuple[str, float, s
 ]
 
 # Unidad de la encuesta -> (base de la receta, cuántas unidades base es una de la encuesta).
+# --- Pienso -------------------------------------------------------------------------
+# La granja no está en la encuesta industrial, pero el pienso sí (en toneladas). Se suma
+# como un componente más: el trabajo de la fábrica de pienso es trabajo anterior que
+# lleva la carne, la leche o el queso.
+# id de receta: [(alias de COMPONENTES, kg de pienso por kg o litro de producto, nota)]
+PIENSO: dict[str, list[tuple[str, float, str]]] = {
+    "POLLO_PIEZAS": [("PIENSO_AVES", 2.5, "~1,7 kg de pienso por kg vivo; 1,45 kg vivo por kg de piezas")],
+    "POLLO_ENTERO": [("PIENSO_AVES", 2.4, "~1,7 kg de pienso por kg vivo; 1,39 kg vivo por kg de canal")],
+    "CERDO": [("PIENSO_CERDOS", 3.5, "~2,6 kg de pienso por kg vivo; 1,35 kg vivo por kg de piezas")],
+    "VACUNO": [("PIENSO_RUMIANTES", 9.0, "~4,5 kg de pienso por kg vivo; 2 kg vivo por kg despiezado")],
+    "EMBUTIDOS": [("PIENSO_CERDOS", 4.4, "~2,6 kg de pienso por kg vivo; 1,7 kg vivo por kg curado")],
+    "JAMON_COCIDO": [("PIENSO_CERDOS", 3.9, "~2,6 kg de pienso por kg vivo; 1,5 kg vivo por kg")],
+    "JAMON_CURADO": [("PIENSO_CERDOS", 4.9, "~2,6 kg de pienso por kg vivo; 1,9 kg vivo por kg curado")],
+    "LECHE": [("PIENSO_RUMIANTES", 0.4, "~0,4 kg de pienso por litro de leche")],
+    "QUESO": [("PIENSO_RUMIANTES", 3.2, "~8 l de leche por kg de queso, con ~0,4 kg de pienso por litro")],
+    "YOGUR": [("PIENSO_RUMIANTES", 0.45, "~1,1 l de leche por kg, con ~0,4 kg de pienso por litro")],
+    "PLATOS": [("PIENSO_CERDOS", 1.6, "~35 % de carne de cerdo")],
+    "PIZZAS": [("PIENSO_RUMIANTES", 0.5, "~15 % de queso")],
+}
+
+# Unidad de venta, para dar también el tiempo de trabajo de lo que se compra:
+# id: (kg o litros que lleva, nombre)
+VENTA: dict[str, tuple[float, str]] = {
+    "POLLO_PIEZAS": (0.5, "bandeja de 500 g"), "POLLO_ENTERO": (1.8, "pollo de 1,8 kg"),
+    "CERDO": (0.6, "bandeja de 600 g"), "VACUNO": (0.5, "bandeja de 500 g"),
+    "EMBUTIDOS": (0.25, "chorizo de 250 g"), "JAMON_COCIDO": (0.15, "barqueta de 150 g"),
+    "JAMON_CURADO": (8, "jamón de 8 kg"), "QUESO": (3, "queso de 3 kg"),
+    "LECHE": (1.03, "brik de 1 l"), "YOGUR": (0.5, "pack de 4 yogures"),
+    "HELADOS": (1, "tarrina de 1 l"), "AOVE": (0.92, "botella de 1 l"), "GIRASOL": (0.92, "botella de 1 l"),
+    "REFRESCOS": (0.33, "lata de 33 cl"), "AGUA": (1.5, "botella de 1,5 l"),
+    "CERVEZA": (0.33, "botellín de 33 cl"), "VINO_TINTO": (0.75, "botella de 75 cl"),
+    "VINO_BLANCO": (0.75, "botella de 75 cl"), "CAVA": (0.75, "botella de 75 cl"),
+    "ATUN": (0.375, "pack de 3 latas"), "ACEITUNAS": (0.35, "envase de 350 g"),
+    "LEGUMBRES": (0.4, "tarro de 400 g"), "PLATOS": (0.4, "lata o bandeja de 400 g"),
+    "MASCOTAS": (3, "saco de 3 kg"), "PAN": (0.25, "barra de 250 g"), "BOLLERIA": (0.3, "bandeja de 300 g"),
+    "GALLETAS": (0.2, "paquete de 200 g"), "PIZZAS": (0.4, "pizza de 400 g"), "CAFE": (0.25, "paquete de 250 g"),
+    "DETERGENTE": (3, "botella de 3 kg"), "PAPEL_HIGIENICO": (1.32, "paquete de 12 rollos"),
+    "PANALES": (1, "paquete de ~30 pañales"), "COLONIA": (0.25, "frasco de 250 ml"),
+}
+
 BASE = {
     "toneladas": ("kg", 1000),
     "kilogramos": ("kg", 1),
@@ -333,16 +376,23 @@ def construir(datos: dict) -> dict:
             factores[codigo] = factor
         if len(bases) > 1:
             errores.append(f"Receta {rid}: mezcla productos en kilos y en litros")
+        lista = list(lista) + PIENSO.get(rid, [])
         for alias, cantidad, _nota in lista:
             if alias not in COMPONENTES:
                 errores.append(f"Receta {rid}: componente desconocido {alias}")
             if cantidad <= 0:
                 errores.append(f"Receta {rid}: cantidad no positiva para {alias}")
+        if rid not in VENTA:
+            errores.append(f"Receta {rid}: falta su unidad de venta en VENTA")
+        venta = VENTA.get(rid, (1, ""))
         recetas.append({
             "id": rid, "e": emoji, "n": nombre, "fam": familia, "fmt": formato,
             "base": bases.pop() if bases else "kg", "p": factores,
             "k": [{"a": a, "x": x, "nota": nota} for a, x, nota in lista],
+            "ud": {"x": venta[0], "n": venta[1]},
         })
+    ids = {r[0] for r in RECETAS}
+    errores += [f"PIENSO o VENTA citan una receta que no existe: {r}" for r in (set(PIENSO) | set(VENTA)) - ids]
     if errores:
         raise ValueError("Errores en scripts/recetas.py:\n  " + "\n  ".join(errores))
     return {

@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generado": "2026-11-13T10:11:13+00:00"
+  "generado": "2026-11-13T11:59:41+00:00"
  },
  "componentes": {
   "BANDEJA": {
@@ -165,6 +165,24 @@
    "u": "uds",
    "f": 1
   },
+  "PIENSO_AVES": {
+   "c": "1091103703",
+   "n": "Pienso para aves",
+   "u": "kg",
+   "f": 1000
+  },
+  "PIENSO_CERDOS": {
+   "c": "1091103306",
+   "n": "Pienso para cerdos",
+   "u": "kg",
+   "f": 1000
+  },
+  "PIENSO_RUMIANTES": {
+   "c": "1091103504",
+   "n": "Pienso para vacas, ovejas y cabras",
+   "u": "kg",
+   "f": 1000
+  },
   "HARINA": {
    "c": "1061210001",
    "n": "Harina de trigo",
@@ -220,8 +238,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_AVES",
+     "x": 2.5,
+     "nota": "~1,7 kg de pienso por kg vivo; 1,45 kg vivo por kg de piezas"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.5,
+    "n": "bandeja de 500 g"
+   }
   },
   {
    "id": "POLLO_ENTERO",
@@ -253,8 +280,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_AVES",
+     "x": 2.4,
+     "nota": "~1,7 kg de pienso por kg vivo; 1,39 kg vivo por kg de canal"
     }
-   ]
+   ],
+   "ud": {
+    "x": 1.8,
+    "n": "pollo de 1,8 kg"
+   }
   },
   {
    "id": "CERDO",
@@ -296,8 +332,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_CERDOS",
+     "x": 3.5,
+     "nota": "~2,6 kg de pienso por kg vivo; 1,35 kg vivo por kg de piezas"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.6,
+    "n": "bandeja de 600 g"
+   }
   },
   {
    "id": "VACUNO",
@@ -339,8 +384,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_RUMIANTES",
+     "x": 9.0,
+     "nota": "~4,5 kg de pienso por kg vivo; 2 kg vivo por kg despiezado"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.5,
+    "n": "bandeja de 500 g"
+   }
   },
   {
    "id": "EMBUTIDOS",
@@ -377,8 +431,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_CERDOS",
+     "x": 4.4,
+     "nota": "~2,6 kg de pienso por kg vivo; 1,7 kg vivo por kg curado"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.25,
+    "n": "chorizo de 250 g"
+   }
   },
   {
    "id": "JAMON_COCIDO",
@@ -420,8 +483,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_CERDOS",
+     "x": 3.9,
+     "nota": "~2,6 kg de pienso por kg vivo; 1,5 kg vivo por kg"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.15,
+    "n": "barqueta de 150 g"
+   }
   },
   {
    "id": "JAMON_CURADO",
@@ -453,8 +525,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_CERDOS",
+     "x": 4.9,
+     "nota": "~2,6 kg de pienso por kg vivo; 1,9 kg vivo por kg curado"
     }
-   ]
+   ],
+   "ud": {
+    "x": 8,
+    "n": "jamón de 8 kg"
+   }
   },
   {
    "id": "QUESO",
@@ -486,8 +567,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_RUMIANTES",
+     "x": 3.2,
+     "nota": "~8 l de leche por kg de queso, con ~0,4 kg de pienso por litro"
     }
-   ]
+   ],
+   "ud": {
+    "x": 3,
+    "n": "queso de 3 kg"
+   }
   },
   {
    "id": "LECHE",
@@ -524,8 +614,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_RUMIANTES",
+     "x": 0.4,
+     "nota": "~0,4 kg de pienso por litro de leche"
     }
-   ]
+   ],
+   "ud": {
+    "x": 1.03,
+    "n": "brik de 1 l"
+   }
   },
   {
    "id": "YOGUR",
@@ -557,8 +656,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_RUMIANTES",
+     "x": 0.45,
+     "nota": "~1,1 l de leche por kg, con ~0,4 kg de pienso por litro"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.5,
+    "n": "pack de 4 yogures"
+   }
   },
   {
    "id": "HELADOS",
@@ -596,7 +704,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 1,
+    "n": "tarrina de 1 l"
+   }
   },
   {
    "id": "AOVE",
@@ -639,7 +751,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.92,
+    "n": "botella de 1 l"
+   }
   },
   {
    "id": "GIRASOL",
@@ -682,7 +798,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.92,
+    "n": "botella de 1 l"
+   }
   },
   {
    "id": "REFRESCOS",
@@ -735,7 +855,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.33,
+    "n": "lata de 33 cl"
+   }
   },
   {
    "id": "AGUA",
@@ -778,7 +902,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 1.5,
+    "n": "botella de 1,5 l"
+   }
   },
   {
    "id": "CERVEZA",
@@ -831,7 +959,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.33,
+    "n": "botellín de 33 cl"
+   }
   },
   {
    "id": "VINO_TINTO",
@@ -874,7 +1006,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.75,
+    "n": "botella de 75 cl"
+   }
   },
   {
    "id": "VINO_BLANCO",
@@ -917,7 +1053,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.75,
+    "n": "botella de 75 cl"
+   }
   },
   {
    "id": "CAVA",
@@ -965,7 +1105,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.75,
+    "n": "botella de 75 cl"
+   }
   },
   {
    "id": "ATUN",
@@ -1008,7 +1152,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.375,
+    "n": "pack de 3 latas"
+   }
   },
   {
    "id": "ACEITUNAS",
@@ -1056,7 +1204,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.35,
+    "n": "envase de 350 g"
+   }
   },
   {
    "id": "LEGUMBRES",
@@ -1099,7 +1251,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.4,
+    "n": "tarro de 400 g"
+   }
   },
   {
    "id": "PLATOS",
@@ -1141,8 +1297,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_CERDOS",
+     "x": 1.6,
+     "nota": "~35 % de carne de cerdo"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.4,
+    "n": "lata o bandeja de 400 g"
+   }
   },
   {
    "id": "MASCOTAS",
@@ -1175,7 +1340,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 3,
+    "n": "saco de 3 kg"
+   }
   },
   {
    "id": "PAN",
@@ -1198,7 +1367,11 @@
      "x": 0.01,
      "nota": "Bolsa de ~5 g por barra de 250 g, en la mitad"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.25,
+    "n": "barra de 250 g"
+   }
   },
   {
    "id": "BOLLERIA",
@@ -1241,7 +1414,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.3,
+    "n": "bandeja de 300 g"
+   }
   },
   {
    "id": "GALLETAS",
@@ -1279,7 +1456,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.2,
+    "n": "paquete de 200 g"
+   }
   },
   {
    "id": "PIZZAS",
@@ -1316,8 +1497,17 @@
      "a": "PALE",
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    },
+    {
+     "a": "PIENSO_RUMIANTES",
+     "x": 0.5,
+     "nota": "~15 % de queso"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.4,
+    "n": "pizza de 400 g"
+   }
   },
   {
    "id": "CAFE",
@@ -1350,7 +1540,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.25,
+    "n": "paquete de 250 g"
+   }
   },
   {
    "id": "DETERGENTE",
@@ -1398,7 +1592,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 3,
+    "n": "botella de 3 kg"
+   }
   },
   {
    "id": "PAPEL_HIGIENICO",
@@ -1426,7 +1624,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 1.32,
+    "n": "paquete de 12 rollos"
+   }
   },
   {
    "id": "PANALES",
@@ -1454,7 +1656,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 1,
+    "n": "paquete de ~30 pañales"
+   }
   },
   {
    "id": "COLONIA",
@@ -1492,7 +1698,11 @@
      "x": 0.0002,
      "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
     }
-   ]
+   ],
+   "ud": {
+    "x": 0.25,
+    "n": "frasco de 250 ml"
+   }
   }
  ]
 }

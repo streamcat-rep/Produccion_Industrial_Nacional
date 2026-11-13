@@ -118,6 +118,13 @@ litro.
   son estimaciones del formato de venta típico, para corregir si hay un dato mejor.
 - Cada componente se valora al **precio medio de la misma encuesta** (valor entre
   cantidad) y su trabajo, con la productividad de la rama que lo fabrica.
+- **TTSN por unidad**: años-persona de cada producto de la encuesta × jornada ÷ lo
+  producido (minutos por kg de pollo, por kg de bandeja, por botella…). El producto
+  final suma el trabajo anterior de todo lo que lleva, por kilo y por unidad de
+  venta (`VENTA` en `scripts/recetas.py`).
+- El **pienso** (en la encuesta, en toneladas) entra como un componente más de la
+  carne y la leche (`PIENSO` en `scripts/recetas.py`). La granja no está en la
+  encuesta y no entra.
 - La página avisa cuando una receta pide más de un componente del que se fabrica
   en España: o se importa (malta, tapones de corcho) o la receta exagera.
 - Tras tocar las recetas: `python scripts/recetas.py` (comprueba los códigos y
