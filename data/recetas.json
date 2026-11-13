@@ -1,0 +1,1498 @@
+{
+ "meta": {
+  "generado": "2026-11-13T10:11:13+00:00"
+ },
+ "componentes": {
+  "BANDEJA": {
+   "c": "2222130006",
+   "n": "Bandejas y cajas de plástico",
+   "u": "kg",
+   "f": 1000
+  },
+  "FILM": {
+   "c": "2221301000",
+   "n": "Film de polietileno (≤ 0,125 mm)",
+   "u": "kg",
+   "f": 1000
+  },
+  "FILM_BOPP": {
+   "c": "2221302105",
+   "n": "Film de polipropileno biorientado",
+   "u": "kg",
+   "f": 1000
+  },
+  "BOLSA": {
+   "c": "2222110008",
+   "n": "Bolsas de polietileno",
+   "u": "kg",
+   "f": 1000
+  },
+  "BOLSA_MULTICAPA": {
+   "c": "2222120007",
+   "n": "Bolsas y láminas de otros plásticos (vacío, multicapa)",
+   "u": "kg",
+   "f": 1000
+  },
+  "PET": {
+   "c": "2222145004",
+   "n": "Botellas de plástico hasta 2 l",
+   "u": "uds",
+   "f": 1000
+  },
+  "GARRAFA": {
+   "c": "2222147000",
+   "n": "Botellas y garrafas de plástico de más de 2 l",
+   "u": "uds",
+   "f": 1000
+  },
+  "TAPON": {
+   "c": "2222192502",
+   "n": "Tapones y tapas de plástico",
+   "u": "kg",
+   "f": 1000
+  },
+  "TRIPA": {
+   "c": "2221213009",
+   "n": "Tripas artificiales",
+   "u": "kg",
+   "f": 1000
+  },
+  "BOTELLA_COLOR": {
+   "c": "2313115002",
+   "n": "Botellas de vidrio de color",
+   "u": "uds",
+   "f": 1000
+  },
+  "BOTELLA_BLANCA": {
+   "c": "2313114005",
+   "n": "Botellas de vidrio incoloro",
+   "u": "uds",
+   "f": 1000
+  },
+  "TARRO": {
+   "c": "2313116000",
+   "n": "Tarros de vidrio para alimentos",
+   "u": "uds",
+   "f": 1000
+  },
+  "FRASCO": {
+   "c": "2313118006",
+   "n": "Frascos de vidrio (perfumería y otros)",
+   "u": "uds",
+   "f": 1000
+  },
+  "LATA": {
+   "c": "2592113307",
+   "n": "Latas de conserva para alimentos",
+   "u": "uds",
+   "f": 1
+  },
+  "LATA_BEBIDA": {
+   "c": "2592124006",
+   "n": "Latas de aluminio para bebidas",
+   "u": "uds",
+   "f": 1
+  },
+  "CORONA": {
+   "c": "2592133007",
+   "n": "Tapones corona",
+   "u": "uds",
+   "f": 1
+  },
+  "TAPA_METAL": {
+   "c": "2592137008",
+   "n": "Tapas y cápsulas metálicas (twist-off, bozales…)",
+   "u": "kg",
+   "f": 1000
+  },
+  "CAPSULA": {
+   "c": "2592135002",
+   "n": "Cápsulas de aluminio (capuchones, roscas de vino)",
+   "u": "kg",
+   "f": 1000
+  },
+  "CORCHO": {
+   "c": "1629225005",
+   "n": "Tapones de corcho natural",
+   "u": "kg",
+   "f": 1
+  },
+  "CORCHO_AGLOMERADO": {
+   "c": "1629232001",
+   "n": "Corcho aglomerado (tapones de cava)",
+   "u": "kg",
+   "f": 1
+  },
+  "CAJA": {
+   "c": "1721130003",
+   "n": "Cajas de cartón ondulado",
+   "u": "kg",
+   "f": 1000
+  },
+  "ESTUCHE": {
+   "c": "1721140002",
+   "n": "Estuches, briks y cartonajes plegables",
+   "u": "kg",
+   "f": 1000
+  },
+  "ENVASE_HELADO": {
+   "c": "1721153005",
+   "n": "Otros envases de cartón (helados…)",
+   "u": "kg",
+   "f": 1000
+  },
+  "BOLSA_PAPEL": {
+   "c": "1721125003",
+   "n": "Bolsas y sacos de papel",
+   "u": "kg",
+   "f": 1000
+  },
+  "TUBO_CARTON": {
+   "c": "1729193004",
+   "n": "Tubos y otros artículos de cartón",
+   "u": "kg",
+   "f": 1000
+  },
+  "ETIQUETA": {
+   "c": "1729112004",
+   "n": "Etiquetas autoadhesivas",
+   "u": "kg",
+   "f": 1000
+  },
+  "PALE": {
+   "c": "1624113305",
+   "n": "Palés de madera",
+   "u": "uds",
+   "f": 1
+  },
+  "HARINA": {
+   "c": "1061210001",
+   "n": "Harina de trigo",
+   "u": "kg",
+   "f": 1000
+  },
+  "MALTA": {
+   "c": "1106103003",
+   "n": "Malta",
+   "u": "kg",
+   "f": 1000
+  },
+  "ACEITE": {
+   "c": "1041540004",
+   "n": "Aceite de girasol refinado",
+   "u": "kg",
+   "f": 1000
+  }
+ },
+ "recetas": [
+  {
+   "id": "POLLO_PIEZAS",
+   "e": "🍗",
+   "n": "Pollo en piezas (pechugas, muslos…)",
+   "fam": "Carne y embutidos",
+   "fmt": "80 % en bandeja de ~500 g con film y etiqueta; el resto a granel en caja (hostelería e industria)",
+   "base": "kg",
+   "p": {
+    "1012105009": 1000
+   },
+   "k": [
+    {
+     "a": "BANDEJA",
+     "x": 0.026,
+     "nota": "Bandeja de ~16 g por 500 g, en el 80 %"
+    },
+    {
+     "a": "FILM",
+     "x": 0.0064,
+     "nota": "Film de cierre de ~4 g por bandeja"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.0016,
+     "nota": "Etiqueta de ~1 g por bandeja"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.04,
+     "nota": "Caja de cartón de ~450 g por cada 10-12 kg"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "POLLO_ENTERO",
+   "e": "🐔",
+   "n": "Pollo entero",
+   "fam": "Carne y embutidos",
+   "fmt": "70 % en bolsa individual (~1,8 kg); todo en caja de cartón",
+   "base": "kg",
+   "p": {
+    "1012101008": 1000
+   },
+   "k": [
+    {
+     "a": "BOLSA",
+     "x": 0.003,
+     "nota": "Bolsa de ~8 g por pollo, en el 70 %"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.0005,
+     "nota": "Etiqueta de ~1 g por pollo"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.04,
+     "nota": "Caja de cartón de ~450 g por cada 10-12 kg"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "CERDO",
+   "e": "🥩",
+   "n": "Carne de cerdo fresca en piezas",
+   "fam": "Carne y embutidos",
+   "fmt": "La mitad en bandeja de ~600 g; la otra mitad en caja con bolsa interior (exportación e industria)",
+   "base": "kg",
+   "p": {
+    "1011129001": 1000
+   },
+   "k": [
+    {
+     "a": "BANDEJA",
+     "x": 0.0133,
+     "nota": "Bandeja de ~16 g por 600 g, en la mitad"
+    },
+    {
+     "a": "FILM",
+     "x": 0.0033,
+     "nota": "Film de ~4 g por bandeja"
+    },
+    {
+     "a": "BOLSA",
+     "x": 0.0015,
+     "nota": "Bolsa interior de ~60 g por caja de 20 kg, en la otra mitad"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.0008,
+     "nota": "Etiqueta de ~1 g por bandeja"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.035,
+     "nota": "Caja de cartón de ~700 g por 20 kg"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "VACUNO",
+   "e": "🐄",
+   "n": "Carne de vacuno despiezada",
+   "fam": "Carne y embutidos",
+   "fmt": "60 % en piezas envasadas al vacío; 40 % en bandeja de ~500 g",
+   "base": "kg",
+   "p": {
+    "1011119002": 1000
+   },
+   "k": [
+    {
+     "a": "BOLSA_MULTICAPA",
+     "x": 0.009,
+     "nota": "Bolsa de vacío de ~15 g por kg, en el 60 %"
+    },
+    {
+     "a": "BANDEJA",
+     "x": 0.0128,
+     "nota": "Bandeja de ~16 g por 500 g, en el 40 %"
+    },
+    {
+     "a": "FILM",
+     "x": 0.0032,
+     "nota": "Film de ~4 g por bandeja"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.002,
+     "nota": "Etiqueta por pieza o bandeja"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.035,
+     "nota": "Caja de cartón de ~700 g por 20 kg"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "EMBUTIDOS",
+   "e": "🌭",
+   "n": "Chorizo, salchichón, salchichas y mortadela",
+   "fam": "Carne y embutidos",
+   "fmt": "Embutido en tripa artificial; envasado al vacío o en atmósfera protectora",
+   "base": "kg",
+   "p": {
+    "1013146108": 1000
+   },
+   "k": [
+    {
+     "a": "TRIPA",
+     "x": 0.006,
+     "nota": "~6 g de tripa artificial por kg (parte va en tripa natural)"
+    },
+    {
+     "a": "BOLSA_MULTICAPA",
+     "x": 0.02,
+     "nota": "Envase de vacío o atmósfera protectora, ~20 g por kg"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.002,
+     "nota": "Etiqueta por envase"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.035,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "JAMON_COCIDO",
+   "e": "🥪",
+   "n": "Jamón cocido y jamón curado deshuesado",
+   "fam": "Carne y embutidos",
+   "fmt": "La mitad loncheado en barqueta de ~150 g; la otra mitad en pieza al vacío",
+   "base": "kg",
+   "p": {
+    "1013154501": 1000
+   },
+   "k": [
+    {
+     "a": "BANDEJA",
+     "x": 0.033,
+     "nota": "Barqueta de ~10 g por 150 g, en la mitad"
+    },
+    {
+     "a": "FILM",
+     "x": 0.01,
+     "nota": "Film de cierre de ~3 g por barqueta"
+    },
+    {
+     "a": "BOLSA_MULTICAPA",
+     "x": 0.0075,
+     "nota": "Bolsa de vacío de ~15 g por kg, en la otra mitad"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.004,
+     "nota": "Etiqueta por envase"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.03,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "JAMON_CURADO",
+   "e": "🍖",
+   "n": "Jamones y paletas curados con hueso",
+   "fam": "Carne y embutidos",
+   "fmt": "Pieza entera de ~8 kg con funda, etiqueta y caja individual",
+   "base": "kg",
+   "p": {
+    "1013112003": 1000
+   },
+   "k": [
+    {
+     "a": "BOLSA",
+     "x": 0.004,
+     "nota": "Funda o malla de ~30 g por pieza"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.0005,
+     "nota": "Etiqueta por pieza"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.06,
+     "nota": "Caja de ~500 g por pieza de 8 kg"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "QUESO",
+   "e": "🧀",
+   "n": "Quesos curados y semicurados",
+   "fam": "Lácteos",
+   "fmt": "Pieza de ~3 kg con lámina plástica, o cuñas al vacío; en caja de cartón",
+   "base": "kg",
+   "p": {
+    "1051405003": 1000
+   },
+   "k": [
+    {
+     "a": "BOLSA_MULTICAPA",
+     "x": 0.008,
+     "nota": "Lámina o bolsa de vacío, ~8 g por kg"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.001,
+     "nota": "Etiqueta por pieza"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.05,
+     "nota": "Caja de cartón por cada 2-4 piezas"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "LECHE",
+   "e": "🥛",
+   "n": "Leche en envases de hasta 2 litros",
+   "fam": "Lácteos",
+   "fmt": "Brik de 1 l (~28 g: cartón, polietileno y aluminio) con tapón, en bandeja de 6 con film",
+   "base": "kg",
+   "p": {
+    "1051114201": 1000
+   },
+   "k": [
+    {
+     "a": "ESTUCHE",
+     "x": 0.027,
+     "nota": "Brik de ~28 g por litro"
+    },
+    {
+     "a": "TAPON",
+     "x": 0.0024,
+     "nota": "Tapón de ~2,5 g por brik"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.012,
+     "nota": "Bandeja de cartón de ~70 g por 6 briks"
+    },
+    {
+     "a": "FILM",
+     "x": 0.004,
+     "nota": "Film retráctil de ~25 g por 6 briks"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "YOGUR",
+   "e": "🍶",
+   "n": "Yogures y leches fermentadas",
+   "fam": "Lácteos",
+   "fmt": "Vaso de plástico de 125 g en pack de 4 con faja de cartón (la tapa no se cuenta)",
+   "base": "kg",
+   "p": {
+    "1051524400": 1000
+   },
+   "k": [
+    {
+     "a": "BANDEJA",
+     "x": 0.032,
+     "nota": "Vaso de ~4 g por 125 g (plástico termoformado)"
+    },
+    {
+     "a": "ESTUCHE",
+     "x": 0.02,
+     "nota": "Faja de cartón de ~10 g por pack de 4"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.02,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "HELADOS",
+   "e": "🍦",
+   "n": "Helados",
+   "fam": "Lácteos",
+   "fmt": "Tarrinas y envases de cartón, polos y conos con envoltorio",
+   "base": "l",
+   "p": {
+    "1052100006": 1000
+   },
+   "k": [
+    {
+     "a": "ENVASE_HELADO",
+     "x": 0.03,
+     "nota": "Envase de cartón, ~30 g por litro"
+    },
+    {
+     "a": "BANDEJA",
+     "x": 0.01,
+     "nota": "Tarrinas de plástico, ~10 g por litro"
+    },
+    {
+     "a": "FILM",
+     "x": 0.004,
+     "nota": "Envoltorios"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.02,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "AOVE",
+   "e": "🫒",
+   "n": "Aceite de oliva virgen extra",
+   "fam": "Aceites",
+   "fmt": "La mitad sale a granel (cisterna); la otra mitad en vidrio de 0,75 l (40 %) o PET de 1 l (60 %)",
+   "base": "kg",
+   "p": {
+    "1041221019": 1000
+   },
+   "k": [
+    {
+     "a": "BOTELLA_BLANCA",
+     "x": 0.29,
+     "nota": "0,55 l envasados por kg × 40 % ÷ 0,75 l"
+    },
+    {
+     "a": "PET",
+     "x": 0.33,
+     "nota": "0,55 l envasados por kg × 60 % ÷ 1 l"
+    },
+    {
+     "a": "TAPON",
+     "x": 0.0016,
+     "nota": "Tapón de ~2,5 g por botella"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.0006,
+     "nota": "Etiqueta de ~1 g por botella"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.018,
+     "nota": "Caja de ~400 g por 12 l envasados"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "GIRASOL",
+   "e": "🌻",
+   "n": "Aceite de girasol refinado",
+   "fam": "Aceites",
+   "fmt": "85 % en botella de PET de 1 l; el resto a granel para la industria",
+   "base": "kg",
+   "p": {
+    "1041540004": 1000
+   },
+   "k": [
+    {
+     "a": "PET",
+     "x": 0.93,
+     "nota": "1,09 l por kg × 85 %"
+    },
+    {
+     "a": "TAPON",
+     "x": 0.0023,
+     "nota": "Tapón de ~2,5 g por botella"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.0009,
+     "nota": "Etiqueta de ~1 g por botella"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.03,
+     "nota": "Caja de ~450 g por 15 botellas"
+    },
+    {
+     "a": "FILM",
+     "x": 0.003,
+     "nota": "Film retráctil del palé"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "REFRESCOS",
+   "e": "🥤",
+   "n": "Refrescos (colas, limonadas…)",
+   "fam": "Bebidas",
+   "fmt": "Por litro: 55 % en PET de 1,5 l, 30 % en lata de 33 cl, 5 % en vidrio de un solo uso de 25 cl; el resto en vidrio retornable y grifo",
+   "base": "l",
+   "p": {
+    "1107195034": 1000
+   },
+   "k": [
+    {
+     "a": "PET",
+     "x": 0.37,
+     "nota": "0,55 l ÷ 1,5 l"
+    },
+    {
+     "a": "LATA_BEBIDA",
+     "x": 0.9,
+     "nota": "0,30 l ÷ 0,33 l"
+    },
+    {
+     "a": "BOTELLA_BLANCA",
+     "x": 0.2,
+     "nota": "0,05 l ÷ 0,25 l"
+    },
+    {
+     "a": "CORONA",
+     "x": 0.6,
+     "nota": "Botellas de vidrio, también las retornables"
+    },
+    {
+     "a": "TAPON",
+     "x": 0.0009,
+     "nota": "Tapón de ~2,5 g por botella de PET"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.015,
+     "nota": "Bandejas y cajas de cartón"
+    },
+    {
+     "a": "FILM",
+     "x": 0.006,
+     "nota": "Film de los packs"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "AGUA",
+   "e": "💧",
+   "n": "Agua mineral y con gas",
+   "fam": "Bebidas",
+   "fmt": "Por litro: 80 % en PET de 1,5 l, 15 % en garrafa de 5 l, 5 % en vidrio de 1 l",
+   "base": "l",
+   "p": {
+    "1107113000": 1000
+   },
+   "k": [
+    {
+     "a": "PET",
+     "x": 0.53,
+     "nota": "0,80 l ÷ 1,5 l"
+    },
+    {
+     "a": "GARRAFA",
+     "x": 0.03,
+     "nota": "0,15 l ÷ 5 l"
+    },
+    {
+     "a": "BOTELLA_BLANCA",
+     "x": 0.05,
+     "nota": "0,05 l ÷ 1 l"
+    },
+    {
+     "a": "TAPON",
+     "x": 0.0015,
+     "nota": "Tapón de ~2,5 g por botella"
+    },
+    {
+     "a": "FILM",
+     "x": 0.006,
+     "nota": "Film de los packs de 6"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "CERVEZA",
+   "e": "🍺",
+   "n": "Cerveza",
+   "fam": "Bebidas",
+   "fmt": "Por litro: 30 % en botella no retornable de 33 cl, 25 % en retornable de 20-25 cl, 25 % en lata de 33 cl, 20 % en barril",
+   "base": "l",
+   "p": {
+    "1105100001": 1000
+   },
+   "k": [
+    {
+     "a": "MALTA",
+     "x": 0.15,
+     "nota": "~150 g de malta por litro"
+    },
+    {
+     "a": "BOTELLA_COLOR",
+     "x": 0.9,
+     "nota": "0,30 l ÷ 0,33 l (las retornables no se fabrican cada año)"
+    },
+    {
+     "a": "CORONA",
+     "x": 2.1,
+     "nota": "Una chapa por botella, también las retornables"
+    },
+    {
+     "a": "LATA_BEBIDA",
+     "x": 0.76,
+     "nota": "0,25 l ÷ 0,33 l"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.0012,
+     "nota": "Etiquetas de las botellas"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.02,
+     "nota": "Cajas y bandejas de cartón"
+    },
+    {
+     "a": "FILM",
+     "x": 0.004,
+     "nota": "Film de los packs"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "VINO_TINTO",
+   "e": "🍷",
+   "n": "Vino tinto con denominación de origen",
+   "fam": "Bebidas",
+   "fmt": "80 % embotellado en 0,75 l, con corcho (60 %) o rosca, cápsula y etiqueta; en caja de 6",
+   "base": "l",
+   "p": {
+    "1102121718": 100
+   },
+   "k": [
+    {
+     "a": "BOTELLA_COLOR",
+     "x": 1.07,
+     "nota": "0,80 l ÷ 0,75 l"
+    },
+    {
+     "a": "CORCHO",
+     "x": 0.0026,
+     "nota": "Tapón de ~4 g en el 60 % de las botellas"
+    },
+    {
+     "a": "CAPSULA",
+     "x": 0.0016,
+     "nota": "Cápsula o rosca de ~1,5 g por botella"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.0021,
+     "nota": "Etiqueta y contraetiqueta de ~2 g"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.067,
+     "nota": "Caja de ~300 g por 6 botellas"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "VINO_BLANCO",
+   "e": "🥂",
+   "n": "Vino blanco con denominación de origen",
+   "fam": "Bebidas",
+   "fmt": "80 % embotellado en 0,75 l, con corcho (60 %) o rosca, cápsula y etiqueta; en caja de 6",
+   "base": "l",
+   "p": {
+    "1102121101": 100
+   },
+   "k": [
+    {
+     "a": "BOTELLA_COLOR",
+     "x": 1.07,
+     "nota": "0,80 l ÷ 0,75 l"
+    },
+    {
+     "a": "CORCHO",
+     "x": 0.0026,
+     "nota": "Tapón de ~4 g en el 60 % de las botellas"
+    },
+    {
+     "a": "CAPSULA",
+     "x": 0.0016,
+     "nota": "Cápsula o rosca de ~1,5 g por botella"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.0021,
+     "nota": "Etiqueta y contraetiqueta de ~2 g"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.067,
+     "nota": "Caja de ~300 g por 6 botellas"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "CAVA",
+   "e": "🍾",
+   "n": "Cava y otros espumosos",
+   "fam": "Bebidas",
+   "fmt": "Botella de 0,75 l con tapón de corcho aglomerado, bozal, capuchón y etiqueta; en caja de 6",
+   "base": "l",
+   "p": {
+    "1102119017": 100
+   },
+   "k": [
+    {
+     "a": "BOTELLA_COLOR",
+     "x": 1.33,
+     "nota": "1 l ÷ 0,75 l"
+    },
+    {
+     "a": "CORCHO_AGLOMERADO",
+     "x": 0.0133,
+     "nota": "Tapón de ~10 g por botella"
+    },
+    {
+     "a": "TAPA_METAL",
+     "x": 0.004,
+     "nota": "Bozal y chapa de ~3 g por botella"
+    },
+    {
+     "a": "CAPSULA",
+     "x": 0.0027,
+     "nota": "Capuchón de ~2 g por botella"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.0027,
+     "nota": "Etiquetas de ~2 g por botella"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.067,
+     "nota": "Caja de ~300 g por 6 botellas"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "ATUN",
+   "e": "🐟",
+   "n": "Conservas de atún y bonito",
+   "fam": "Conservas",
+   "fmt": "Lata de ~125 g de media (de la RO-85 a la familiar) con aceite, en estuche de 3",
+   "base": "kg",
+   "p": {
+    "1020254023": 1000
+   },
+   "k": [
+    {
+     "a": "LATA",
+     "x": 8,
+     "nota": "1 kg ÷ 125 g"
+    },
+    {
+     "a": "ACEITE",
+     "x": 0.2,
+     "nota": "~20 % de aceite (de girasol; parte es de oliva)"
+    },
+    {
+     "a": "ESTUCHE",
+     "x": 0.04,
+     "nota": "Estuche de cartón de los packs"
+    },
+    {
+     "a": "FILM",
+     "x": 0.003,
+     "nota": "Film de los packs"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.04,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "ACEITUNAS",
+   "e": "🫒",
+   "n": "Aceitunas de mesa",
+   "fam": "Conservas",
+   "fmt": "Un tercio a granel para exportar; del resto, 40 % en lata, 30 % en tarro de vidrio y 30 % en bolsa (envases de ~350 g)",
+   "base": "kg",
+   "p": {
+    "1039177001": 1000
+   },
+   "k": [
+    {
+     "a": "LATA",
+     "x": 0.77,
+     "nota": "0,67 kg envasados × 40 % ÷ 350 g"
+    },
+    {
+     "a": "TARRO",
+     "x": 0.57,
+     "nota": "0,67 kg × 30 % ÷ 350 g"
+    },
+    {
+     "a": "TAPA_METAL",
+     "x": 0.0046,
+     "nota": "Tapa de ~8 g por tarro"
+    },
+    {
+     "a": "BOLSA_MULTICAPA",
+     "x": 0.005,
+     "nota": "Bolsa de ~5 g por 200 g, en el 30 %"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.002,
+     "nota": "Etiquetas"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.03,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "LEGUMBRES",
+   "e": "🫘",
+   "n": "Legumbres y hortalizas en conserva",
+   "fam": "Conservas",
+   "fmt": "Tarro de vidrio de ~400 g con tapa (60 %) o lata (40 %)",
+   "base": "kg",
+   "p": {
+    "1039179007": 1000
+   },
+   "k": [
+    {
+     "a": "TARRO",
+     "x": 1.5,
+     "nota": "1 kg × 60 % ÷ 400 g"
+    },
+    {
+     "a": "TAPA_METAL",
+     "x": 0.012,
+     "nota": "Tapa de ~8 g por tarro"
+    },
+    {
+     "a": "LATA",
+     "x": 1.0,
+     "nota": "1 kg × 40 % ÷ 400 g"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.002,
+     "nota": "Etiquetas"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.03,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "PLATOS",
+   "e": "🍲",
+   "n": "Platos preparados de carne",
+   "fam": "Conservas",
+   "fmt": "40 % en lata o tarro de ~400 g; 60 % en bandeja con film y estuche",
+   "base": "kg",
+   "p": {
+    "1085111003": 1000
+   },
+   "k": [
+    {
+     "a": "LATA",
+     "x": 1.0,
+     "nota": "1 kg × 40 % ÷ 400 g"
+    },
+    {
+     "a": "BANDEJA",
+     "x": 0.03,
+     "nota": "Bandeja de ~20 g por 400 g, en el 60 %"
+    },
+    {
+     "a": "FILM",
+     "x": 0.006,
+     "nota": "Film de ~4 g por bandeja"
+    },
+    {
+     "a": "ESTUCHE",
+     "x": 0.02,
+     "nota": "Estuche de cartón"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.03,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "MASCOTAS",
+   "e": "🐕",
+   "n": "Comida para perros y gatos",
+   "fam": "Otros alimentos",
+   "fmt": "85 % pienso seco en saco de ~3 kg; 15 % comida húmeda en lata de 400 g",
+   "base": "kg",
+   "p": {
+    "1092103006": 1000
+   },
+   "k": [
+    {
+     "a": "BOLSA_MULTICAPA",
+     "x": 0.013,
+     "nota": "Saco de ~45 g por 3 kg, en el 85 %"
+    },
+    {
+     "a": "LATA",
+     "x": 0.375,
+     "nota": "1 kg × 15 % ÷ 400 g"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.02,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "PAN",
+   "e": "🥖",
+   "n": "Pan fresco (barras, hogazas)",
+   "fam": "Pan y bollería",
+   "fmt": "~62 % de harina; la mitad sale en bolsa de papel",
+   "base": "kg",
+   "p": {
+    "1071110014": 1000
+   },
+   "k": [
+    {
+     "a": "HARINA",
+     "x": 0.62,
+     "nota": "~620 g de harina por kg de pan"
+    },
+    {
+     "a": "BOLSA_PAPEL",
+     "x": 0.01,
+     "nota": "Bolsa de ~5 g por barra de 250 g, en la mitad"
+    }
+   ]
+  },
+  {
+   "id": "BOLLERIA",
+   "e": "🥐",
+   "n": "Bollería y pastelería fresca",
+   "fam": "Pan y bollería",
+   "fmt": "~45 % de harina; en bandeja con envoltorio y estuche",
+   "base": "kg",
+   "p": {
+    "1071120004": 1000
+   },
+   "k": [
+    {
+     "a": "HARINA",
+     "x": 0.45,
+     "nota": "~450 g de harina por kg"
+    },
+    {
+     "a": "BANDEJA",
+     "x": 0.02,
+     "nota": "Bandeja de plástico"
+    },
+    {
+     "a": "FILM_BOPP",
+     "x": 0.012,
+     "nota": "Envoltorio individual"
+    },
+    {
+     "a": "ESTUCHE",
+     "x": 0.03,
+     "nota": "Estuche de cartón"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.03,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "GALLETAS",
+   "e": "🍪",
+   "n": "Galletas y pastas",
+   "fam": "Pan y bollería",
+   "fmt": "~55 % de harina; en paquete de film con estuche de cartón",
+   "base": "kg",
+   "p": {
+    "1072125507": 1000
+   },
+   "k": [
+    {
+     "a": "HARINA",
+     "x": 0.55,
+     "nota": "~550 g de harina por kg"
+    },
+    {
+     "a": "FILM_BOPP",
+     "x": 0.02,
+     "nota": "Paquetes de film"
+    },
+    {
+     "a": "ESTUCHE",
+     "x": 0.06,
+     "nota": "Estuche de cartón"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.03,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "PIZZAS",
+   "e": "🍕",
+   "n": "Pizzas, empanadas y masas",
+   "fam": "Pan y bollería",
+   "fmt": "~45 % de harina; con film y caja de cartón",
+   "base": "kg",
+   "p": {
+    "1072199006": 1
+   },
+   "k": [
+    {
+     "a": "HARINA",
+     "x": 0.45,
+     "nota": "~450 g de harina por kg"
+    },
+    {
+     "a": "FILM",
+     "x": 0.012,
+     "nota": "Film"
+    },
+    {
+     "a": "ESTUCHE",
+     "x": 0.06,
+     "nota": "Caja de cartón de la pizza"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.02,
+     "nota": "Caja de transporte"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "CAFE",
+   "e": "☕",
+   "n": "Café tostado",
+   "fam": "Otros alimentos",
+   "fmt": "Paquete multicapa de 250 g (~9 g); el café verde es importado y no está en la encuesta",
+   "base": "kg",
+   "p": {
+    "1083115009": 1000
+   },
+   "k": [
+    {
+     "a": "BOLSA_MULTICAPA",
+     "x": 0.035,
+     "nota": "Paquete de ~9 g por 250 g"
+    },
+    {
+     "a": "ESTUCHE",
+     "x": 0.02,
+     "nota": "Estuches de cartón"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.03,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "DETERGENTE",
+   "e": "🧴",
+   "n": "Detergentes para la ropa y la vajilla",
+   "fam": "Limpieza e higiene",
+   "fmt": "60 % líquido en botella de 3 l; 25 % en polvo en caja de cartón; 15 % en cápsulas en bolsa",
+   "base": "kg",
+   "p": {
+    "2041325005": 1
+   },
+   "k": [
+    {
+     "a": "GARRAFA",
+     "x": 0.19,
+     "nota": "0,6 kg ÷ ~3,1 kg por botella"
+    },
+    {
+     "a": "TAPON",
+     "x": 0.003,
+     "nota": "Tapón de ~15 g por botella"
+    },
+    {
+     "a": "ESTUCHE",
+     "x": 0.0125,
+     "nota": "Caja de ~150 g por 3 kg de polvo, en el 25 %"
+    },
+    {
+     "a": "BOLSA_MULTICAPA",
+     "x": 0.0045,
+     "nota": "Bolsa de las cápsulas"
+    },
+    {
+     "a": "ETIQUETA",
+     "x": 0.001,
+     "nota": "Etiquetas"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.03,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "PAPEL_HIGIENICO",
+   "e": "🧻",
+   "n": "Papel higiénico",
+   "fam": "Limpieza e higiene",
+   "fmt": "Rollo de ~110 g con canuto de cartón (~6 g), en paquete de film",
+   "base": "kg",
+   "p": {
+    "1722112009": 1000
+   },
+   "k": [
+    {
+     "a": "TUBO_CARTON",
+     "x": 0.055,
+     "nota": "Canuto de ~6 g por rollo de 110 g"
+    },
+    {
+     "a": "FILM",
+     "x": 0.02,
+     "nota": "Bolsa de ~25 g por paquete de 12 rollos"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "PANALES",
+   "e": "👶",
+   "n": "Pañales y compresas",
+   "fam": "Limpieza e higiene",
+   "fmt": "Paquete de plástico en caja de cartón",
+   "base": "kg",
+   "p": {
+    "1722123006": 1000
+   },
+   "k": [
+    {
+     "a": "BOLSA",
+     "x": 0.025,
+     "nota": "Bolsa de plástico del paquete"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.03,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  },
+  {
+   "id": "COLONIA",
+   "e": "🌸",
+   "n": "Colonias y aguas de tocador",
+   "fam": "Limpieza e higiene",
+   "fmt": "Frasco de vidrio de ~250 ml de media, con tapón y estuche de cartón",
+   "base": "l",
+   "p": {
+    "2042117009": 100
+   },
+   "k": [
+    {
+     "a": "FRASCO",
+     "x": 4,
+     "nota": "1 l ÷ 250 ml"
+    },
+    {
+     "a": "TAPON",
+     "x": 0.02,
+     "nota": "Tapón o pulverizador de ~5 g por frasco"
+    },
+    {
+     "a": "ESTUCHE",
+     "x": 0.16,
+     "nota": "Estuche de ~40 g por frasco"
+    },
+    {
+     "a": "CAJA",
+     "x": 0.05,
+     "nota": "Caja de cartón"
+    },
+    {
+     "a": "PALE",
+     "x": 0.0002,
+     "nota": "Un palé nuevo por cada ~5 t: los palés se reutilizan"
+    }
+   ]
+  }
+ ]
+}

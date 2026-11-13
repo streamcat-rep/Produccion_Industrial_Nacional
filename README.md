@@ -9,15 +9,15 @@ fabricada y valor económico— desde 2008, a partir de la
 | Ruta | Para qué |
 | --- | --- |
 | `index.html` | La web. Sin dependencias ni compilación. |
-| `final.html` | Página «Producción final»: los productos agrupados como el PIB. |
+| `final.html` | Página «Producción final»: cada producto con sus envases e ingredientes. |
 | `data/produccion.json` | Los datos que lee la web. |
-| `data/final.json` | A qué producción final va cada producto (lo lee `final.html`). |
+| `data/recetas.json` | Las recetas comprobadas (lo lee `final.html`). |
 | `data/crudo/` | Copia comprimida de lo descargado del INE, un fichero por año. |
 | `scripts/actualizar.py` | Descarga del INE y regenera `data/`. |
 | `scripts/ine_eip.py` | Cliente de la aplicación de consulta del INE. |
 | `scripts/ine_macro.py` | PIB y asalariados del INE, para la productividad. |
 | `scripts/nombres.py` | Nombres claros, emojis y unidades. **Edítalo para renombrar.** |
-| `scripts/produccion_final.py` | Genera `data/final.json` (lo llama `actualizar.py`). |
+| `scripts/recetas.py` | Qué lleva cada producto al venderse (bandeja, film, botella…). **Edítalo para afinar.** |
 | `scripts/ine_tio.py` | Tablas input-output del INE. |
 | `scripts/destinos.py` | Qué es bien final, qué insumo y de quién. **Edítalo para reclasificar.** |
 | `.github/workflows/actualizar.yml` | Actualización automática en GitHub. |
@@ -106,27 +106,22 @@ Segunda pestaña de la web. Añade a cada producto cuánto trabajo representa:
 
 ## La página «Producción final»
 
-`final.html` agrupa la misma producción como lo haría el PIB, que solo cuenta lo
-que llega al final: una lata de conservas no cuenta por sí misma, sino dentro de
-la conserva. Cada producto es un **bien final** (todo su valor va a un grupo:
-alimentación, vehículos, equipamiento del hogar…) o un **insumo**, que se reparte
-entre los grupos en los que acaba incorporado. Las dos columnas no se suman: el
-valor de los insumos ya está dentro del bien final que los lleva.
+`final.html` toma cada producto final tal como se vende y le suma lo que lleva:
+la pechuga de pollo con su bandeja de plástico, su film, su etiqueta, la caja de
+cartón y el palé; la cerveza con la malta, la botella, la chapa y la lata. De todo
+junto da la cantidad, el valor, los años-persona y el TTSN en minutos por kilo o
+litro.
 
-| Paso | Con qué |
-| --- | --- |
-| ¿Final o insumo? | Los «grandes sectores industriales» de la UE (Reglamento (CE) 656/2007), afinados producto a producto en `scripts/destinos.py` |
-| Insumo con cliente claro (latas, piensos, cemento, piezas de coche) | Se reparte como la producción de las ramas que lo usan |
-| Insumo genérico (acero, química básica, plásticos) y energía | Se reparte según quién lo compra, siguiendo la cadena completa con la inversa de Leontief |
-
-- El reparto sale de la tabla input-output **interior** del INE (sin importaciones,
-  64 ramas): `x = (I − A)⁻¹ · f`. El script comprueba que cada tabla cuadra y que
-  la inversa reproduce la producción.
-- Los libros del INE solo traen la demanda final desde 2021; los años anteriores
-  usan la tabla de 2021, y los posteriores a la última, la última.
-- Lo que una rama de materiales exporta sin transformar va a «Materiales
-  exportados»: es producción final para España e insumo para otro país.
-- Tras tocar `destinos.py`: `python scripts/produccion_final.py --sin-descarga`.
+- Las **recetas** están en `scripts/recetas.py`: por kilo o litro de producto,
+  cuánto lleva de cada componente, con una nota que explica el cálculo (peso de la
+  bandeja, tamaño del envase, parte que sale a granel…). **No son datos del INE**:
+  son estimaciones del formato de venta típico, para corregir si hay un dato mejor.
+- Cada componente se valora al **precio medio de la misma encuesta** (valor entre
+  cantidad) y su trabajo, con la productividad de la rama que lo fabrica.
+- La página avisa cuando una receta pide más de un componente del que se fabrica
+  en España: o se importa (malta, tapones de corcho) o la receta exagera.
+- Tras tocar las recetas: `python scripts/recetas.py` (comprueba los códigos y
+  escribe `data/recetas.json`).
 
 ## El intermediario de Cloudflare
 
