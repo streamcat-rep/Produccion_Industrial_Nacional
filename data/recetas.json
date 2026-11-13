@@ -1,6 +1,6 @@
 {
  "meta": {
-  "generado": "2026-11-13T11:59:41+00:00"
+  "generado": "2026-11-13T12:06:30+00:00"
  },
  "componentes": {
   "BANDEJA": {
@@ -200,7 +200,444 @@
    "n": "Aceite de girasol refinado",
    "u": "kg",
    "f": 1000
+  },
+  "PE_BD": {
+   "c": "2016103907",
+   "n": "Polietileno de baja densidad",
+   "u": "kg",
+   "f": 1000
+  },
+  "PE_AD": {
+   "c": "2016105008",
+   "n": "Polietileno de alta densidad",
+   "u": "kg",
+   "f": 1000
+  },
+  "PP": {
+   "c": "2016513001",
+   "n": "Polipropileno",
+   "u": "kg",
+   "f": 1000
+  },
+  "PET_RESINA": {
+   "c": "2016406204",
+   "n": "PET en granza",
+   "u": "kg",
+   "f": 1000
+  },
+  "ETILENO": {
+   "c": "2014113007",
+   "n": "Etileno",
+   "u": "kg",
+   "f": 1000
+  },
+  "PROPILENO": {
+   "c": "2014114005",
+   "n": "Propileno",
+   "u": "kg",
+   "f": 1000
+  },
+  "PXILENO": {
+   "c": "2014124500",
+   "n": "Paraxileno",
+   "u": "kg",
+   "f": 1000
+  },
+  "NAFTA": {
+   "c": "1920235099",
+   "n": "Nafta para la petroquímica",
+   "u": "kg",
+   "f": 1000
+  },
+  "TESTLINER": {
+   "c": "1712352007",
+   "n": "Papel testliner (cara del cartón ondulado)",
+   "u": "kg",
+   "f": 1000
+  },
+  "ACANALAR": {
+   "c": "1712340002",
+   "n": "Papel para acanalar (onda del cartón)",
+   "u": "kg",
+   "f": 1000
+  },
+  "CARTON_MULTICAPA": {
+   "c": "1712795509",
+   "n": "Cartón multicapa estucado",
+   "u": "kg",
+   "f": 1000
+  },
+  "PAPEL_ESTUCADO": {
+   "c": "1712733603",
+   "n": "Papel estucado",
+   "u": "kg",
+   "f": 1000
+  },
+  "PAPEL_KRAFT": {
+   "c": "1712416007",
+   "n": "Papel kraft",
+   "u": "kg",
+   "f": 1000
+  },
+  "PASTA": {
+   "c": "1711120005",
+   "n": "Pasta química de madera",
+   "u": "kg",
+   "f": 1000
+  },
+  "MADERA": {
+   "c": "1610114004",
+   "n": "Madera aserrada de coníferas",
+   "u": "m³",
+   "f": 1
+  },
+  "HOJALATA": {
+   "c": "2410511108",
+   "n": "Hojalata",
+   "u": "kg",
+   "f": 1000
+  },
+  "ACERO": {
+   "c": "2410212216",
+   "n": "Acero no aleado en lingotes y semiproductos",
+   "u": "kg",
+   "f": 1000
+  },
+  "ALU_CHAPA": {
+   "c": "2442245008",
+   "n": "Chapa de aleación de aluminio",
+   "u": "kg",
+   "f": 1000
+  },
+  "ALUMINIO": {
+   "c": "2442115409",
+   "n": "Aleaciones de aluminio en bruto",
+   "u": "kg",
+   "f": 1000
+  },
+  "SOSA": {
+   "c": "2013431007",
+   "n": "Carbonato sódico (sosa) para el vidrio",
+   "u": "kg",
+   "f": 1
+  },
+  "TORTA_SOJA": {
+   "c": "1041419005",
+   "n": "Harina y torta de soja y otras oleaginosas",
+   "u": "kg",
+   "f": 1000
+  },
+  "PREMEZCLA": {
+   "c": "1091101002",
+   "n": "Premezclas (vitaminas y minerales) para piensos",
+   "u": "kg",
+   "f": 1000
   }
+ },
+ "cadena": {
+  "BANDEJA": [
+   {
+    "a": "PP",
+    "x": 0.5,
+    "nota": "Mitad polipropileno"
+   },
+   {
+    "a": "PET_RESINA",
+    "x": 0.55,
+    "nota": "Mitad PET; ~5 % de merma"
+   }
+  ],
+  "FILM": [
+   {
+    "a": "PE_BD",
+    "x": 1.03,
+    "nota": "~3 % de merma"
+   }
+  ],
+  "FILM_BOPP": [
+   {
+    "a": "PP",
+    "x": 1.03,
+    "nota": "~3 % de merma"
+   }
+  ],
+  "BOLSA": [
+   {
+    "a": "PE_BD",
+    "x": 1.03,
+    "nota": "~3 % de merma"
+   }
+  ],
+  "BOLSA_MULTICAPA": [
+   {
+    "a": "PE_BD",
+    "x": 0.7,
+    "nota": "Capas de polietileno"
+   },
+   {
+    "a": "PP",
+    "x": 0.33,
+    "nota": "Capas de polipropileno y barrera"
+   }
+  ],
+  "PET": [
+   {
+    "a": "PET_RESINA",
+    "x": 0.023,
+    "nota": "Preforma de ~23 g por botella"
+   }
+  ],
+  "GARRAFA": [
+   {
+    "a": "PET_RESINA",
+    "x": 0.08,
+    "nota": "~80 g por garrafa"
+   }
+  ],
+  "TAPON": [
+   {
+    "a": "PE_AD",
+    "x": 1.03,
+    "nota": "~3 % de merma"
+   }
+  ],
+  "BOTELLA_COLOR": [
+   {
+    "a": "SOSA",
+    "x": 0.045,
+    "nota": "Botella de ~450 g; ~0,1 kg de sosa por kg de vidrio con la mitad de calcín"
+   }
+  ],
+  "BOTELLA_BLANCA": [
+   {
+    "a": "SOSA",
+    "x": 0.04,
+    "nota": "Botella de ~400 g; ~0,1 kg de sosa por kg de vidrio"
+   }
+  ],
+  "TARRO": [
+   {
+    "a": "SOSA",
+    "x": 0.02,
+    "nota": "Tarro de ~200 g; ~0,1 kg de sosa por kg de vidrio"
+   }
+  ],
+  "FRASCO": [
+   {
+    "a": "SOSA",
+    "x": 0.015,
+    "nota": "Frasco de ~150 g; ~0,1 kg de sosa por kg de vidrio"
+   }
+  ],
+  "LATA": [
+   {
+    "a": "HOJALATA",
+    "x": 0.045,
+    "nota": "~45 g de hojalata por lata, de media"
+   }
+  ],
+  "LATA_BEBIDA": [
+   {
+    "a": "ALU_CHAPA",
+    "x": 0.016,
+    "nota": "~13 g de aluminio por lata más recortes"
+   }
+  ],
+  "CORONA": [
+   {
+    "a": "HOJALATA",
+    "x": 0.0025,
+    "nota": "~2,5 g de acero por chapa"
+   }
+  ],
+  "TAPA_METAL": [
+   {
+    "a": "HOJALATA",
+    "x": 1.1,
+    "nota": "~10 % de recortes"
+   }
+  ],
+  "CAPSULA": [
+   {
+    "a": "ALU_CHAPA",
+    "x": 1.1,
+    "nota": "~10 % de recortes"
+   }
+  ],
+  "CAJA": [
+   {
+    "a": "TESTLINER",
+    "x": 0.75,
+    "nota": "Las dos caras"
+   },
+   {
+    "a": "ACANALAR",
+    "x": 0.3,
+    "nota": "La onda"
+   }
+  ],
+  "ESTUCHE": [
+   {
+    "a": "CARTON_MULTICAPA",
+    "x": 1.05,
+    "nota": "~5 % de recortes"
+   }
+  ],
+  "ENVASE_HELADO": [
+   {
+    "a": "CARTON_MULTICAPA",
+    "x": 1.05,
+    "nota": "~5 % de recortes"
+   }
+  ],
+  "BOLSA_PAPEL": [
+   {
+    "a": "PAPEL_KRAFT",
+    "x": 1.05,
+    "nota": "~5 % de recortes"
+   }
+  ],
+  "TUBO_CARTON": [
+   {
+    "a": "TESTLINER",
+    "x": 1.05,
+    "nota": "~5 % de recortes"
+   }
+  ],
+  "ETIQUETA": [
+   {
+    "a": "PAPEL_ESTUCADO",
+    "x": 0.7,
+    "nota": "La cara de la etiqueta; el resto es soporte y adhesivo"
+   }
+  ],
+  "PALE": [
+   {
+    "a": "MADERA",
+    "x": 0.045,
+    "nota": "~25 kg de madera por palé"
+   }
+  ],
+  "PIENSO_AVES": [
+   {
+    "a": "TORTA_SOJA",
+    "x": 0.25,
+    "nota": "~25 % de harina de soja; el cereal no está en la encuesta"
+   },
+   {
+    "a": "PREMEZCLA",
+    "x": 0.01,
+    "nota": "~1 % de premezcla"
+   }
+  ],
+  "PIENSO_CERDOS": [
+   {
+    "a": "TORTA_SOJA",
+    "x": 0.15,
+    "nota": "~15 % de harina de soja; el cereal no está en la encuesta"
+   },
+   {
+    "a": "PREMEZCLA",
+    "x": 0.01,
+    "nota": "~1 % de premezcla"
+   }
+  ],
+  "PIENSO_RUMIANTES": [
+   {
+    "a": "TORTA_SOJA",
+    "x": 0.12,
+    "nota": "~12 % de harina de soja; el cereal y el forraje no están en la encuesta"
+   },
+   {
+    "a": "PREMEZCLA",
+    "x": 0.01,
+    "nota": "~1 % de premezcla"
+   }
+  ],
+  "PE_BD": [
+   {
+    "a": "ETILENO",
+    "x": 1.0,
+    "nota": "Un kilo de etileno por kilo de polietileno"
+   }
+  ],
+  "PE_AD": [
+   {
+    "a": "ETILENO",
+    "x": 1.0,
+    "nota": "Un kilo de etileno por kilo de polietileno"
+   }
+  ],
+  "PP": [
+   {
+    "a": "PROPILENO",
+    "x": 1.0,
+    "nota": "Un kilo de propileno por kilo de polipropileno"
+   }
+  ],
+  "PET_RESINA": [
+   {
+    "a": "PXILENO",
+    "x": 0.58,
+    "nota": "~0,86 kg de ácido tereftálico por kg de PET, ~0,67 kg de paraxileno por kg de ácido"
+   }
+  ],
+  "ETILENO": [
+   {
+    "a": "NAFTA",
+    "x": 1.1,
+    "nota": "Craqueo de nafta, repartido por peso entre etileno, propileno y demás"
+   }
+  ],
+  "PROPILENO": [
+   {
+    "a": "NAFTA",
+    "x": 1.1,
+    "nota": "Craqueo de nafta, repartido por peso"
+   }
+  ],
+  "PXILENO": [
+   {
+    "a": "NAFTA",
+    "x": 1.1,
+    "nota": "Reformado de nafta"
+   }
+  ],
+  "CARTON_MULTICAPA": [
+   {
+    "a": "PASTA",
+    "x": 0.6,
+    "nota": "Capas de fibra virgen; el resto, fibra recuperada"
+   }
+  ],
+  "PAPEL_ESTUCADO": [
+   {
+    "a": "PASTA",
+    "x": 0.75,
+    "nota": "El resto es estucado mineral"
+   }
+  ],
+  "PAPEL_KRAFT": [
+   {
+    "a": "PASTA",
+    "x": 0.9,
+    "nota": "Fibra virgen"
+   }
+  ],
+  "HOJALATA": [
+   {
+    "a": "ACERO",
+    "x": 1.05,
+    "nota": "Acero laminado y estañado"
+   }
+  ],
+  "ALU_CHAPA": [
+   {
+    "a": "ALUMINIO",
+    "x": 1.05,
+    "nota": "Laminación con ~5 % de recortes"
+   }
+  ]
  },
  "recetas": [
   {

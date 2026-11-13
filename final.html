@@ -110,6 +110,12 @@
     <label class="crece">Buscar
       <input id="buscar" type="search" placeholder="Producto o componente: pollo, bandeja, lata, brik…" autocomplete="off">
     </label>
+    <label>Trabajo de cada eslabón
+      <select id="medida" aria-label="Trabajo de cada eslabón">
+        <option value="directo">Directo: producción por asalariado</option>
+        <option value="vab">Valor añadido por asalariado (otra pestaña)</option>
+      </select>
+    </label>
     <label>Jornada anual (horas)
       <input id="jornada" type="number" min="1" step="1" value="1826">
     </label>
@@ -158,6 +164,14 @@
       la pestaña «Producción y trabajo necesario»). Divididos entre lo que se produjo dan su <strong>TTSN por unidad</strong>: minutos por kilo de pollo, por kilo
       de bandeja, por botella, por kilo de pienso. El producto final es la suma del trabajo anterior: 0,5 kg × los minutos del kilo de pollo + una bandeja ×
       los minutos de una bandeja + el film + el pienso… Las partes se fabrican a la vez, en paralelo, y el envasado final ya va dentro del producto.</li>
+    <li><strong>La cadena hacia atrás</strong>: cada componente lleva el trabajo de sus materias primas, y estas el de las suyas, mientras la encuesta
+      las mida: la bandeja lleva polipropileno y PET; el polipropileno, propileno; el propileno, nafta. La caja lleva papel; el papel, pasta. La lata,
+      hojalata y acero. El pienso, harina de soja y premezclas. Se para donde la encuesta ya no llega: el petróleo crudo, el papel recuperado, la madera
+      en rollo, el mineral, los cereales y la soja en grano. Las cantidades (kilos de polímero por kilo de bandeja…) están en <code>CADENA</code> de
+      <code>scripts/recetas.py</code>.</li>
+    <li><strong>Trabajo de cada eslabón</strong>: para sumar la cadena sin contar nada dos veces, cada eslabón cuenta solo su trabajo directo: su valor
+      entre la producción por asalariado de su rama (suma de la encuesta). Con «valor añadido por asalariado», como en la otra pestaña, cada producto ya
+      lleva dentro parte del trabajo de sus materias primas (su precio las incluye), y sumarle la cadena las cuenta dos veces.</li>
     <li><strong>El pienso</strong> está en la encuesta (en toneladas) y se suma como un componente: los kilos de pienso por kilo de carne o litro de leche
       salen del índice de conversión típico (~1,7 kg por kg vivo en el pollo, ~2,6 en el cerdo), explicado en cada fila.</li>
     <li><strong>Lo que no entra</strong>: lo que la encuesta industrial no mide: el trabajo en la granja y en el campo (el pollo vivo, la uva, la aceituna),
@@ -200,10 +214,41 @@ async function leer(url) {
   return resp.json();
 }
 
-/** € por asalariado y año de la rama que fabrica un producto, en el año elegido. */
+// Producción de cada rama en la encuesta (miles de €), por año: para el trabajo directo.
+let produccionRama = null;
+
+/** € por asalariado y año de la rama que fabrica un producto, en el año elegido.
+ *  «directo»: producción (suma de la encuesta) por asalariado. Cada eslabón cuenta solo
+ *  su propio trabajo, y la cadena suma los demás sin contarlos dos veces.
+ *  «vab»: valor añadido por asalariado, como en la otra pestaña. El valor de un producto
+ *  ya incluye lo que costaron sus materias primas, así que dividirlo por el valor
+ *  añadido por asalariado ya mete parte del trabajo anterior: sumarle la cadena lo cuenta dos veces. */
 function productividad(p) {
-  const r = datos.macro?.ramas?.[datos.sectores[p.s]?.r];
-  return r && r.vab[n] != null && r.asalariados[n] ? (r.vab[n] * 1000) / r.asalariados[n] : null;
+  const clave = datos.sectores[p.s]?.r, r = datos.macro?.ramas?.[clave];
+  if (!r || !r.asalariados[n]) return null;
+  if ($("medida").value === "vab") return r.vab[n] != null ? (r.vab[n] * 1000) / r.asalariados[n] : null;
+  if (!produccionRama) {
+    produccionRama = datos.meta.anyos.map(() => ({}));
+    for (const q of datos.productos) {
+      const k = datos.sectores[q.s]?.r;
+      q.v.forEach((v, i) => { if (v) produccionRama[i][k] = (produccionRama[i][k] || 0) + v; });
+    }
+  }
+  const prod = produccionRama[n][clave];
+  return prod ? (prod * 1000) / (r.asalariados[n] * 1000) : null;
+}
+
+/** Un eslabón de la cadena: un producto de la encuesta, su trabajo y el de sus materias primas. */
+function eslabon(alias, cant, visto = new Set()) {
+  const comp = recetas.componentes[alias], pc = P[comp.c];
+  const pr = precio(comp), valor = pr ? cant * pr.eur : null, prod = productividad(pc);
+  const ap = valor != null && prod ? valor / prod : null;
+  const fabricado = pc.q[n] ? pc.q[n] * comp.f : null;
+  const dentro = new Set(visto).add(alias);
+  const hijos = (recetas.cadena[alias] || []).filter((e) => !dentro.has(e.a))
+    .map((e) => ({ ...eslabon(e.a, cant * e.x, dentro), x: e.x, nota: e.nota }));
+  return { a: alias, comp, cant, pr, valor, ap, hijos, cuota: fabricado ? cant / fabricado : null,
+           apCadena: (ap || 0) + hijos.reduce((t, h) => t + h.apCadena, 0) };
 }
 
 /** Precio medio (€ por unidad de la receta) de un componente: el del año elegido o el del más cercano. */
@@ -231,20 +276,10 @@ function calcular() {
       const prod = productividad(p);
       if (prod) ap += (p.v[n] * 1000) / prod;
     }
-    const comps = r.k.map((k) => {
-      const comp = recetas.componentes[k.a], pc = P[comp.c];
-      const cant = q * k.x, pr = precio(comp);
-      const valor = pr ? cant * pr.eur : null;
-      const prod = productividad(pc);
-      const fabricado = pc.q[n] ? pc.q[n] * comp.f : null;
-      const ap = valor != null && prod ? valor / prod : null;
-      return { ...k, comp, cant, pr, valor, ap,
-               // Minutos de trabajo por unidad del componente (por kg de bandeja, por botella…).
-               minUnidad: ap != null && cant ? (ap * jornada * 60) / cant : null,
-               cuota: fabricado ? cant / fabricado : null };
-    });
+    const comps = r.k.map((k) => ({ ...eslabon(k.a, q * k.x), x: k.x, nota: k.nota }));
     const vComp = comps.reduce((s, c) => s + (c.valor || 0), 0);
-    const apComp = comps.reduce((s, c) => s + (c.ap || 0), 0);
+    // Cada componente con toda su cadena hacia atrás.
+    const apComp = comps.reduce((s, c) => s + c.apCadena, 0);
     const apTotal = ap + apComp;
     const minutos = q && jornada ? (apTotal * jornada * 60) / q : null;
     filas.push({ r, q, v, ap, comps, vComp, apComp, apTotal, sinDato, minutos,
@@ -303,34 +338,42 @@ const minTxt = (m) => (m == null ? "—" : m >= 100 ? `${fmtNum.format(m)} min` 
 const porVenta = (x, u) => (u === "kg" ? (x >= 1 ? `${fmtX.format(x)} kg` : `${fmtX.format(x * 1000)} g`) : `${fmtX.format(x)} ud`);
 
 function detalle(f) {
-  const base = f.r.base, ud = f.r.ud;
-  const filas = f.comps.map((c) => {
-    const cuota = c.cuota == null ? "—"
-      : `<span class="${c.cuota > 1 ? "aviso" : ""}" title="${c.cuota > 1 ? "Más de lo que se fabrica en España: se importa o la receta exagera" : ""}">${fmtPct.format(c.cuota)}</span>`;
-    const lleva = c.x * ud.x;
-    return `<tr><td>${c.comp.c.startsWith("1091") ? "🌾" : "📦"} ${esc(c.comp.n)}<div class="meta">${esc(c.nota)}</div></td>
-      <td class="n">${porVenta(lleva, c.comp.u)}</td>
-      <td class="n">${c.minUnidad == null ? "—" : `${minTxt(c.minUnidad)}/${c.comp.u === "kg" ? "kg" : "ud"}`}</td>
-      <td class="n">${c.minUnidad == null ? "—" : minTxt(lleva * c.minUnidad)}</td>
-      <td class="n">${unidadComp(c, c.cant)}</td>
-      <td class="n">${anios(c.ap)}</td>
-      <td class="n">${cuota}</td></tr>`;
-  }).join("");
+  const base = f.r.base, ud = f.r.ud, jornada = Number($("jornada").value) || 0;
+  const min = (ap, cant) => (ap != null && cant ? (ap * jornada * 60) / cant : null);
+  // e: eslabón; lleva: cantidad en una unidad de venta; nivel: 0 = componente directo.
+  const fila = (e, lleva, nivel) => {
+    const cuota = e.cuota == null ? "—"
+      : `<span class="${e.cuota > 1 ? "aviso" : ""}" title="${e.cuota > 1 ? "Más de lo que se fabrica en España: se importa o la receta exagera" : ""}">${fmtPct.format(e.cuota)}</span>`;
+    const icono = nivel ? "↳" : e.comp.c.startsWith("1091") ? "🌾" : "📦";
+    const mu = min(e.ap, e.cant), mc = min(e.apCadena, e.cant);
+    const u = e.comp.u === "uds" ? "ud" : e.comp.u;
+    return `<tr><td style="padding-left:${8 + nivel * 22}px">${icono} ${esc(e.comp.n)}<div class="meta">${esc(e.nota)}</div></td>
+      <td class="n">${e.comp.u === "kg" ? porVenta(lleva, "kg") : `${fmtX.format(lleva)} ${u}`}</td>
+      <td class="n">${mu == null ? "—" : `${minTxt(mu)}/${u}`}</td>
+      <td class="n">${mu == null ? "—" : minTxt(lleva * mu)}</td>
+      <td class="n">${e.hijos.length && mc != null ? minTxt(lleva * mc) : ""}</td>
+      <td class="n">${e.comp.u === "kg" ? unidadComp({ comp: e.comp }, e.cant) : `${corto(e.cant)} ${u}`}</td>
+      <td class="n">${anios(e.ap)}</td>
+      <td class="n">${cuota}</td></tr>` + e.hijos.map((h) => fila(h, lleva * h.x, nivel + 1)).join("");
+  };
+  const filas = f.comps.map((c) => fila(c, c.x * ud.x, 0)).join("");
   return `<tr class="detalle"><td colspan="10">
-    <p><strong>Una ${esc(ud.n)}</strong> lleva el trabajo de todo lo que la compone, hecho antes y en paralelo. Formato de venta supuesto: ${esc(f.r.fmt)}.</p>
+    <p><strong>Una ${esc(ud.n)}</strong> lleva el trabajo de todo lo que la compone y, hacia atrás, el de las materias primas de cada
+      componente que mide la encuesta (↳). Todo se hace antes y en paralelo. Formato de venta supuesto: ${esc(f.r.fmt)}.</p>
     <table><thead><tr><th>Qué lleva</th><th class="n">En una ${esc(ud.n)}</th>
-      <th class="n" title="Años-persona de toda la producción española de ese producto × jornada × 60, entre la cantidad producida">TTSN por unidad</th>
-      <th class="n">Minutos en la ${esc(ud.n)}</th>
-      <th class="n">Cantidad en el año</th><th class="n">Años-persona en el año</th>
-      <th class="n" title="Parte de la producción española de ese componente">% de lo fabricado en España</th></tr></thead>
+      <th class="n" title="Años-persona del eslabón × jornada × 60, entre la cantidad">TTSN por unidad</th>
+      <th class="n" title="Solo el trabajo de ese eslabón">Minutos del eslabón</th>
+      <th class="n" title="El eslabón más todos los que tiene detrás">Con su cadena</th>
+      <th class="n">Cantidad en el año</th><th class="n">Años-persona del eslabón</th>
+      <th class="n" title="Parte de la producción española de ese producto">% de lo fabricado en España</th></tr></thead>
     <tbody>
       <tr><td>🏭 <strong>${esc(f.r.n)}</strong><div class="meta">${Object.keys(f.r.p).map((c) => `${c} · ${esc(P[c].n)}`).join("; ")}</div></td>
         <td class="n">${base === "l" ? `${fmtX.format(ud.x)} l` : porVenta(ud.x, "kg")}</td>
         <td class="n">${f.minProducto == null ? "—" : `${minTxt(f.minProducto)}/${base}`}</td>
-        <td class="n">${f.minProducto == null ? "—" : minTxt(ud.x * f.minProducto)}</td>
+        <td class="n">${f.minProducto == null ? "—" : minTxt(ud.x * f.minProducto)}</td><td></td>
         <td class="n">${cantidadProducto(f)}</td><td class="n">${anios(f.ap)}</td><td class="n">—</td></tr>
       ${filas}
-      <tr class="total"><td>Todo junto</td><td></td><td></td><td class="n">${minTxt(f.minUd)}</td><td></td>
+      <tr class="total"><td>Todo junto</td><td></td><td></td><td></td><td class="n">${minTxt(f.minUd)}</td><td></td>
         <td class="n">${anios(f.apTotal)}</td><td></td></tr>
     </tbody></table></td></tr>`;
 }
@@ -389,10 +432,12 @@ function descargarCsv() {
   for (const f of visibles()) {
     lineas.push([f.r.n, f.r.fam, "(el producto)", Object.keys(f.r.p).join(" "), 1, f.r.base, dec(f.q),
                  f.q ? dec(f.v / f.q) : "", dec(f.v), "", dec(f.ap), f.r.fmt].map(celda).join(";"));
-    for (const c of f.comps) {
-      lineas.push([f.r.n, f.r.fam, c.comp.n, c.comp.c, dec(c.x), c.comp.u, dec(c.cant), c.pr ? dec(c.pr.eur) : "",
-                   dec(c.valor), c.cuota == null ? "" : dec(c.cuota * 100), dec(c.ap), c.nota].map(celda).join(";"));
-    }
+    const csvFila = (e, nivel) => {
+      lineas.push([f.r.n, f.r.fam, `${"↳ ".repeat(nivel)}${e.comp.n}`, e.comp.c, dec(e.x), e.comp.u, dec(e.cant), e.pr ? dec(e.pr.eur) : "",
+                   dec(e.valor), e.cuota == null ? "" : dec(e.cuota * 100), dec(e.ap), e.nota].map(celda).join(";"));
+      e.hijos.forEach((h) => csvFila(h, nivel + 1));
+    };
+    f.comps.forEach((c) => csvFila(c, 0));
   }
   const enlace = document.createElement("a");
   enlace.href = URL.createObjectURL(new Blob(["﻿" + lineas.join("\r\n")], { type: "text/csv;charset=utf-8" }));
@@ -441,6 +486,7 @@ function recalcular() {
 
 $("anyo").addEventListener("change", (ev) => { n = Number(ev.target.value); recalcular(); });
 $("jornada").addEventListener("input", () => datos && recalcular());
+$("medida").addEventListener("change", () => datos && recalcular());
 // (los minutos dependen de la jornada; los años-persona, no)
 $("familia").addEventListener("change", () => calculo && repintar());
 $("buscar").addEventListener("input", () => calculo && repintar());

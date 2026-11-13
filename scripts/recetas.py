@@ -78,6 +78,80 @@ COMPONENTES: dict[str, tuple[str, str, str, float]] = {
     "HARINA": ("1061210001", "Harina de trigo", "kg", 1000),
     "MALTA": ("1106103003", "Malta", "kg", 1000),
     "ACEITE": ("1041540004", "Aceite de girasol refinado", "kg", 1000),
+    # Materias primas de los envases y del pienso (los eslabones de CADENA)
+    "PE_BD": ("2016103907", "Polietileno de baja densidad", "kg", 1000),
+    "PE_AD": ("2016105008", "Polietileno de alta densidad", "kg", 1000),
+    "PP": ("2016513001", "Polipropileno", "kg", 1000),
+    "PET_RESINA": ("2016406204", "PET en granza", "kg", 1000),
+    "ETILENO": ("2014113007", "Etileno", "kg", 1000),
+    "PROPILENO": ("2014114005", "Propileno", "kg", 1000),
+    "PXILENO": ("2014124500", "Paraxileno", "kg", 1000),
+    "NAFTA": ("1920235099", "Nafta para la petroquímica", "kg", 1000),
+    "TESTLINER": ("1712352007", "Papel testliner (cara del cartón ondulado)", "kg", 1000),
+    "ACANALAR": ("1712340002", "Papel para acanalar (onda del cartón)", "kg", 1000),
+    "CARTON_MULTICAPA": ("1712795509", "Cartón multicapa estucado", "kg", 1000),
+    "PAPEL_ESTUCADO": ("1712733603", "Papel estucado", "kg", 1000),
+    "PAPEL_KRAFT": ("1712416007", "Papel kraft", "kg", 1000),
+    "PASTA": ("1711120005", "Pasta química de madera", "kg", 1000),
+    "MADERA": ("1610114004", "Madera aserrada de coníferas", "m³", 1),
+    "HOJALATA": ("2410511108", "Hojalata", "kg", 1000),
+    "ACERO": ("2410212216", "Acero no aleado en lingotes y semiproductos", "kg", 1000),
+    "ALU_CHAPA": ("2442245008", "Chapa de aleación de aluminio", "kg", 1000),
+    "ALUMINIO": ("2442115409", "Aleaciones de aluminio en bruto", "kg", 1000),
+    "SOSA": ("2013431007", "Carbonato sódico (sosa) para el vidrio", "kg", 1),
+    "TORTA_SOJA": ("1041419005", "Harina y torta de soja y otras oleaginosas", "kg", 1000),
+    "PREMEZCLA": ("1091101002", "Premezclas (vitaminas y minerales) para piensos", "kg", 1000),
+}
+
+# --- Cadena hacia atrás --------------------------------------------------------------
+# Cada componente lleva el trabajo de sus propias materias primas, si la encuesta las
+# mide: la bandeja lleva polipropileno y PET, el polipropileno lleva propileno y este,
+# nafta. alias: [(alias de COMPONENTES, cantidad por unidad del componente, nota)].
+# Se encadena hasta donde llega la encuesta: no mide el petróleo crudo, el papel
+# recuperado, la madera en rollo, el mineral ni los cereales y la soja en grano.
+CADENA: dict[str, list[tuple[str, float, str]]] = {
+    "BANDEJA": [("PP", 0.5, "Mitad polipropileno"), ("PET_RESINA", 0.55, "Mitad PET; ~5 % de merma")],
+    "FILM": [("PE_BD", 1.03, "~3 % de merma")],
+    "FILM_BOPP": [("PP", 1.03, "~3 % de merma")],
+    "BOLSA": [("PE_BD", 1.03, "~3 % de merma")],
+    "BOLSA_MULTICAPA": [("PE_BD", 0.7, "Capas de polietileno"), ("PP", 0.33, "Capas de polipropileno y barrera")],
+    "PET": [("PET_RESINA", 0.023, "Preforma de ~23 g por botella")],
+    "GARRAFA": [("PET_RESINA", 0.08, "~80 g por garrafa")],
+    "TAPON": [("PE_AD", 1.03, "~3 % de merma")],
+    "BOTELLA_COLOR": [("SOSA", 0.045, "Botella de ~450 g; ~0,1 kg de sosa por kg de vidrio con la mitad de calcín")],
+    "BOTELLA_BLANCA": [("SOSA", 0.04, "Botella de ~400 g; ~0,1 kg de sosa por kg de vidrio")],
+    "TARRO": [("SOSA", 0.02, "Tarro de ~200 g; ~0,1 kg de sosa por kg de vidrio")],
+    "FRASCO": [("SOSA", 0.015, "Frasco de ~150 g; ~0,1 kg de sosa por kg de vidrio")],
+    "LATA": [("HOJALATA", 0.045, "~45 g de hojalata por lata, de media")],
+    "LATA_BEBIDA": [("ALU_CHAPA", 0.016, "~13 g de aluminio por lata más recortes")],
+    "CORONA": [("HOJALATA", 0.0025, "~2,5 g de acero por chapa")],
+    "TAPA_METAL": [("HOJALATA", 1.1, "~10 % de recortes")],
+    "CAPSULA": [("ALU_CHAPA", 1.1, "~10 % de recortes")],
+    "CAJA": [("TESTLINER", 0.75, "Las dos caras"), ("ACANALAR", 0.3, "La onda")],
+    "ESTUCHE": [("CARTON_MULTICAPA", 1.05, "~5 % de recortes")],
+    "ENVASE_HELADO": [("CARTON_MULTICAPA", 1.05, "~5 % de recortes")],
+    "BOLSA_PAPEL": [("PAPEL_KRAFT", 1.05, "~5 % de recortes")],
+    "TUBO_CARTON": [("TESTLINER", 1.05, "~5 % de recortes")],
+    "ETIQUETA": [("PAPEL_ESTUCADO", 0.7, "La cara de la etiqueta; el resto es soporte y adhesivo")],
+    "PALE": [("MADERA", 0.045, "~25 kg de madera por palé")],
+    "PIENSO_AVES": [("TORTA_SOJA", 0.25, "~25 % de harina de soja; el cereal no está en la encuesta"),
+                    ("PREMEZCLA", 0.01, "~1 % de premezcla")],
+    "PIENSO_CERDOS": [("TORTA_SOJA", 0.15, "~15 % de harina de soja; el cereal no está en la encuesta"),
+                      ("PREMEZCLA", 0.01, "~1 % de premezcla")],
+    "PIENSO_RUMIANTES": [("TORTA_SOJA", 0.12, "~12 % de harina de soja; el cereal y el forraje no están en la encuesta"),
+                         ("PREMEZCLA", 0.01, "~1 % de premezcla")],
+    "PE_BD": [("ETILENO", 1.0, "Un kilo de etileno por kilo de polietileno")],
+    "PE_AD": [("ETILENO", 1.0, "Un kilo de etileno por kilo de polietileno")],
+    "PP": [("PROPILENO", 1.0, "Un kilo de propileno por kilo de polipropileno")],
+    "PET_RESINA": [("PXILENO", 0.58, "~0,86 kg de ácido tereftálico por kg de PET, ~0,67 kg de paraxileno por kg de ácido")],
+    "ETILENO": [("NAFTA", 1.1, "Craqueo de nafta, repartido por peso entre etileno, propileno y demás")],
+    "PROPILENO": [("NAFTA", 1.1, "Craqueo de nafta, repartido por peso")],
+    "PXILENO": [("NAFTA", 1.1, "Reformado de nafta")],
+    "CARTON_MULTICAPA": [("PASTA", 0.6, "Capas de fibra virgen; el resto, fibra recuperada")],
+    "PAPEL_ESTUCADO": [("PASTA", 0.75, "El resto es estucado mineral")],
+    "PAPEL_KRAFT": [("PASTA", 0.9, "Fibra virgen")],
+    "HOJALATA": [("ACERO", 1.05, "Acero laminado y estañado")],
+    "ALU_CHAPA": [("ALUMINIO", 1.05, "Laminación con ~5 % de recortes")],
 }
 
 # Un palé nuevo cada ~5 t de mercancía (los palés se reutilizan varias veces).
@@ -391,6 +465,10 @@ def construir(datos: dict) -> dict:
             "k": [{"a": a, "x": x, "nota": nota} for a, x, nota in lista],
             "ud": {"x": venta[0], "n": venta[1]},
         })
+    for alias, entradas in CADENA.items():
+        for entrada, cantidad, _nota in entradas:
+            if alias not in COMPONENTES or entrada not in COMPONENTES or cantidad <= 0:
+                errores.append(f"CADENA: {alias} -> {entrada} no es válido")
     ids = {r[0] for r in RECETAS}
     errores += [f"PIENSO o VENTA citan una receta que no existe: {r}" for r in (set(PIENSO) | set(VENTA)) - ids]
     if errores:
@@ -398,6 +476,7 @@ def construir(datos: dict) -> dict:
     return {
         "meta": {"generado": datetime.now(timezone.utc).isoformat(timespec="seconds")},
         "componentes": componentes,
+        "cadena": {a: [{"a": e, "x": x, "nota": nota} for e, x, nota in l] for a, l in CADENA.items()},
         "recetas": recetas,
     }
 

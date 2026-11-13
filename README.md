@@ -122,6 +122,13 @@ litro.
   producido (minutos por kg de pollo, por kg de bandeja, por botella…). El producto
   final suma el trabajo anterior de todo lo que lleva, por kilo y por unidad de
   venta (`VENTA` en `scripts/recetas.py`).
+- **Cadena hacia atrás** (`CADENA` en `scripts/recetas.py`): cada componente lleva
+  sus materias primas si la encuesta las mide (bandeja → polipropileno → propileno
+  → nafta; caja → papel → pasta; lata → hojalata → acero; pienso → harina de soja).
+- **Trabajo de cada eslabón**: por defecto, el directo (valor ÷ producción por
+  asalariado de su rama), para sumar la cadena sin contar dos veces. Con «valor
+  añadido por asalariado» (la otra pestaña) cada producto ya incluye parte del
+  trabajo de sus materias primas.
 - El **pienso** (en la encuesta, en toneladas) entra como un componente más de la
   carne y la leche (`PIENSO` en `scripts/recetas.py`). La granja no está en la
   encuesta y no entra.
