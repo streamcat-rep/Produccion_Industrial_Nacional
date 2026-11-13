@@ -112,8 +112,8 @@
     </label>
     <label>Trabajo de cada eslabón
       <select id="medida" aria-label="Trabajo de cada eslabón">
-        <option value="directo">Directo: producción por asalariado</option>
-        <option value="vab">Valor añadido por asalariado (otra pestaña)</option>
+        <option value="vab">Valor añadido por asalariado (como la otra pestaña)</option>
+        <option value="directo">Solo el trabajo directo de cada nodo</option>
       </select>
     </label>
     <label>Jornada anual (horas)
@@ -356,24 +356,29 @@ function detalle(f) {
       <td class="n">${anios(e.ap)}</td>
       <td class="n">${cuota}</td></tr>` + e.hijos.map((h) => fila(h, lleva * h.x, nivel + 1)).join("");
   };
-  const filas = f.comps.map((c) => fila(c, c.x * ud.x, 0)).join("");
+  // Por kilo (o litro) de producto: cada nodo en la proporción que lleva un kilo.
+  const filas = f.comps.map((c) => fila(c, c.x, 0)).join("");
   return `<tr class="detalle"><td colspan="10">
-    <p><strong>Una ${esc(ud.n)}</strong> lleva el trabajo de todo lo que la compone y, hacia atrás, el de las materias primas de cada
-      componente que mide la encuesta (↳). Todo se hace antes y en paralelo. Formato de venta supuesto: ${esc(f.r.fmt)}.</p>
-    <table><thead><tr><th>Qué lleva</th><th class="n">En una ${esc(ud.n)}</th>
+    <p><strong>1 ${base} de producto = la suma de todos los nodos</strong>: el del propio producto más cada envase, el pienso y, hacia atrás,
+      las materias primas de cada uno que mide la encuesta (↳), cada nodo en la proporción que lleva un ${base === "l" ? "litro" : "kilo"}.
+      Se fabrican en paralelo, pero su trabajo se suma. <strong>Total: ${f.minutos == null ? "—" : minTxt(f.minutos)} por ${base}</strong>;
+      una ${esc(ud.n)}: ${minTxt(f.minUd)}. Formato de venta supuesto: ${esc(f.r.fmt)}.</p>
+    <table><thead><tr><th>Nodo</th><th class="n">En 1 ${base}</th>
       <th class="n" title="Años-persona del eslabón × jornada × 60, entre la cantidad">TTSN por unidad</th>
-      <th class="n" title="Solo el trabajo de ese eslabón">Minutos del eslabón</th>
-      <th class="n" title="El eslabón más todos los que tiene detrás">Con su cadena</th>
+      <th class="n" title="Solo el trabajo de ese nodo">Minutos en 1 ${base}</th>
+      <th class="n" title="El nodo más todos los que tiene detrás">Con su cadena</th>
       <th class="n">Cantidad en el año</th><th class="n">Años-persona del eslabón</th>
       <th class="n" title="Parte de la producción española de ese producto">% de lo fabricado en España</th></tr></thead>
     <tbody>
       <tr><td>🏭 <strong>${esc(f.r.n)}</strong><div class="meta">${Object.keys(f.r.p).map((c) => `${c} · ${esc(P[c].n)}`).join("; ")}</div></td>
-        <td class="n">${base === "l" ? `${fmtX.format(ud.x)} l` : porVenta(ud.x, "kg")}</td>
+        <td class="n">1 ${base}</td>
         <td class="n">${f.minProducto == null ? "—" : `${minTxt(f.minProducto)}/${base}`}</td>
-        <td class="n">${f.minProducto == null ? "—" : minTxt(ud.x * f.minProducto)}</td><td></td>
+        <td class="n">${minTxt(f.minProducto)}</td><td></td>
         <td class="n">${cantidadProducto(f)}</td><td class="n">${anios(f.ap)}</td><td class="n">—</td></tr>
       ${filas}
-      <tr class="total"><td>Todo junto</td><td></td><td></td><td></td><td class="n">${minTxt(f.minUd)}</td><td></td>
+      <tr><td class="meta" colspan="8">✋ El despiece, el envasado y el montaje final (poner el pollo en la bandeja, sellar, etiquetar, encajar)
+        los hacen las salas de despiece y envasado, que el INE cuenta en el mismo nodo del producto: ya están en su fila.</td></tr>
+      <tr class="total"><td>Suma de todos los nodos</td><td></td><td></td><td></td><td class="n">${minTxt(f.minutos)} por ${base}</td><td></td>
         <td class="n">${anios(f.apTotal)}</td><td></td></tr>
     </tbody></table></td></tr>`;
 }
